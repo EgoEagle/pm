@@ -92,27 +92,39 @@ fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
 fragment.image_file = "images/certificate-of-merit.jpg"
 renderer.add_fragment fragment
 
-fragment = PageFragment.new x: data_hash["sections"]["header1"]["location"][0], y: data_hash["sections"]["header1"]["location"][1], width: data_hash["sections"]["header1"]["location"][2], height: data_hash["sections"]["header1"]["location"][3], name: "head1", font_size: data_hash["sections"]["header1"]["font-size"].to_i
-fragment.content = data_hash["sections"]["header1"]["text"]
-renderer.add_fragment fragment
-
-fragment = PageFragment.new x: data_hash["sections"]["header2"]["location"][0], y: data_hash["sections"]["header2"]["location"][1], width: data_hash["sections"]["header2"]["location"][2], height: data_hash["sections"]["header2"]["location"][3], name: "head2", font_size: data_hash["sections"]["header2"]["font-size"].to_i
-fragment.content = data_hash["sections"]["header2"]["text"]
-renderer.add_fragment fragment
-
-fragment = PageFragment.new x: data_hash["sections"]["name"]["location"][0], y: data_hash["sections"]["name"]["location"][1], width: data_hash["sections"]["name"]["location"][2], height: data_hash["sections"]["name"]["location"][3], name: "head2", font_size: data_hash["sections"]["name"]["font-size"].to_i
-fragment.content = "Tony Lin"
-renderer.add_fragment fragment
-
-fragment = PageFragment.new x: data_hash["sections"]["presented-date"]["location"][0], y: data_hash["sections"]["presented-date"]["location"][1], width:data_hash["sections"]["presented-date"]["location"][2], height:data_hash["sections"]["presented-date"]["location"][3] , font_size: 20
-fragment.content = Date.today.to_s
-
-renderer.add_fragment fragment
 
 data_hash["sections"].each_key do |attr|
-    data_hash["sections"][attr].each do |value|
+  fragment = PageFragment.new
+  fragment.font = "Times-Roman"
+    data_hash["sections"][attr].each do |key,value|
+      #puts "new #{key}  #{value}"
       puts value
+      if key == "font-size"
+        fragment.font_size = value.to_i
+
+      elsif key == "location"
+        value = value.split(" ")
+        fragment.x = value[0].to_i
+        fragment.y = value[1].to_i
+        fragment.width = value[2].to_i
+        fragment.height = value[3].to_i
+      
+      elsif key == "text"
+        fragment.content = value
+
+      elsif attr == "name"
+        value = "Tony Lin"
+        fragment.content = value
+
+      elsif attr =="presented-date"
+        fragment.content = Date.today.to_s
+
+      elsif key =="image"
+        fragment.image_file = "images/signature.png"
+      end
+    
     end
+  renderer.add_fragment fragment
 end
 
 renderer.render

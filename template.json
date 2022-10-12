@@ -13,32 +13,32 @@
      "sections": {
        "header1": {
          "font-size": "20pt",
-         "location": [50, 360, 400, 30],
+         "location": "50 360 400 30",
          "text": "NCCER Presents"
        },
        "header2": {
          "font-size": "20pt",
-         "location": [250, 360, 400, 70],
+         "location": "250 360 400 70",
          "text": "2023 Craft Certificate"
        },
        "name": {
          "font-size": "50pt",
          "font-style": "italic",
-         "location": [160 ,280, 400, 110],
+         "location": "160 280 400 110",
          "text": "{{name}}"
        },
    
        "presented-header": {
-         "location": [10, 190, 90, 220],
+         "location": "150 150 90 220",
          "text": "Presented On"
        },
        "presented-date": {
-         "location": [140 ,130, 120, 250],
+         "location": "140 130 120 250",
          "text": "{{certificate-date}}"
        },
    
        "signature": {
-         "location": [300 ,190, 400, 250],
+         "location": "450 150 125 120",
          "image": "images/certificates/boyd_signature.png"
        }
      }
