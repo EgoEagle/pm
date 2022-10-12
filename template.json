@@ -29,7 +29,7 @@
        },
    
        "presented-header": {
-         "location": "10 190 90 220",
+         "location": [10, 190, 90, 220],
          "text": "Presented On"
        },
        "presented-date": {
@@ -38,7 +38,7 @@
        },
    
        "signature": {
-         "location": "300 190 400 250",
+         "location": [300 ,190, 400, 250],
          "image": "images/certificates/boyd_signature.png"
        }
      }

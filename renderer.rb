@@ -3,10 +3,10 @@ require "json"
 require 'date'
 
 require_relative "page_fragment"
-
+#json object
 file = File.read("template.json")
 data_hash = JSON.parse(file)
-
+#into Ruby Hash
 class Renderer
   attr_reader :page_fragments
   COLOR_WHITE = "FFFFFF"
@@ -108,5 +108,11 @@ fragment = PageFragment.new x: data_hash["sections"]["presented-date"]["location
 fragment.content = Date.today.to_s
 
 renderer.add_fragment fragment
+
+data_hash["sections"].each_key do |attr|
+    data_hash["sections"][attr].each do |value|
+      puts value
+    end
+end
 
 renderer.render
