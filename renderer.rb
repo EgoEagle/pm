@@ -7,11 +7,18 @@ require_relative "page_fragment"
 file = File.read("template.json")
 data_hash = JSON.parse(file)
 #into Ruby Hash
+
+attributes = {
+  name: "Tony Lin",
+  certificate: "Carpentry Level One",
+  completion_date: "2022-10-10"
+}
+
 class Renderer
   attr_reader :page_fragments
   COLOR_WHITE = "FFFFFF"
 
-  def initialize(options = {})
+  def initialize(options = {}) 
     @options = options
     #@data_hash = data_hash
     #@collection = collection
@@ -86,6 +93,10 @@ class Renderer
   end
 end
 
+
+
+puts 
+
 renderer = Renderer.new
 
 fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
@@ -98,8 +109,15 @@ data_hash["sections"].each_key do |attr|
   fragment.font = "Times-Roman"
     data_hash["sections"][attr].each do |key,value|
       #puts "new #{key}  #{value}"
-      puts value
-      if key == "font-size"
+
+      if value.match /\{+\w\}+/
+        puts value
+        #fragment.content = Date.today.to_s
+
+      elsif value=="{{name}}"
+        fragment.content = "Sample Name1"
+
+      elsif key == "font-size"
         fragment.font_size = value.to_i
 
       elsif key == "location"
@@ -111,13 +129,6 @@ data_hash["sections"].each_key do |attr|
       
       elsif key == "text"
         fragment.content = value
-
-      elsif attr == "name"
-        value = "Tony Lin"
-        fragment.content = value
-
-      elsif attr =="presented-date"
-        fragment.content = Date.today.to_s
 
       elsif key =="image"
         fragment.image_file = "images/signature.png"
