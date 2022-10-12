@@ -110,12 +110,14 @@ data_hash["sections"].each_key do |attr|
     data_hash["sections"][attr].each do |key,value|
       #puts "new #{key}  #{value}"
 
-      if value.match /\{+\w\}+/
-        puts value
-        #fragment.content = Date.today.to_s
+      if value.match /\{\{(.*)\}\}/ 
+        attribute = value.delete"{}"
+        unless attribute.nil?
+          fragment.content = attributes[attribute]
+        end
 
-      elsif value=="{{name}}"
-        fragment.content = "Sample Name1"
+      # elsif value=="{{name}}"
+      #   fragment.content = "Sample Name1"
 
       elsif key == "font-size"
         fragment.font_size = value.to_i
