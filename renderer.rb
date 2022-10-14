@@ -1,24 +1,30 @@
 require "prawn"
 require "json"
-require 'date'
+require "date"
 
 require_relative "page_fragment"
-#json object
-file = File.read("template.json")
-data_hash = JSON.parse(file)
-#into Ruby Hash
 
 attributes = {
   name: "Tony Lin",
   certificate: "Carpentry Level One",
-  completion_date: "2022-10-10"
+  completion_date: "2022-10-10",
+  type: "certificate",
 }
+
+case attributes[:type]
+when "certificate"
+  file = File.read("certificate_template.json")
+end
+
+#json object
+data_hash = JSON.parse(file)
+#into Ruby Hash
 
 class Renderer
   attr_reader :page_fragments
   COLOR_WHITE = "FFFFFF"
 
-  def initialize(options = {}) 
+  def initialize(options = {})
     @options = options
     #@data_hash = data_hash
     #@collection = collection
@@ -67,7 +73,7 @@ class Renderer
       color = fragment.color? ? fragment.color : COLOR_WHITE
 
       content.each do |c|
-        pdf.text c, width: fragment.width, align: :center, color: color
+        pdf.text c, width: fragment.width, align: :center, :color => color, style: fragment.style
       end
     end
 
@@ -93,9 +99,7 @@ class Renderer
   end
 end
 
-
-
-puts 
+puts
 
 renderer = Renderer.new
 
@@ -103,40 +107,33 @@ fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
 fragment.image_file = "images/certificate-of-merit.jpg"
 renderer.add_fragment fragment
 
-
 data_hash["sections"].each_key do |attr|
   fragment = PageFragment.new
   fragment.font = "Times-Roman"
-    data_hash["sections"][attr].each do |key,value|
-      #puts "new #{key}  #{value}"
-
-      if value.match /\{\{(.*)\}\}/ 
-        attribute = value.delete"{}"
-        unless attribute.nil?
-          fragment.content = attributes[attribute]
-        end
-
-      # elsif value=="{{name}}"
-      #   fragment.content = "Sample Name1"
-
-      elsif key == "font-size"
-        fragment.font_size = value.to_i
-
-      elsif key == "location"
-        value = value.split(" ")
-        fragment.x = value[0].to_i
-        fragment.y = value[1].to_i
-        fragment.width = value[2].to_i
-        fragment.height = value[3].to_i
-      
-      elsif key == "text"
+  data_hash["sections"][attr].each do |key, value|
+    #puts "new #{key}  #{value}"
+    if key == "font-size"
+      fragment.font_size = value.to_i
+    elsif key == "location"
+      coordinates = value.split(" ")
+      fragment.x = coordinates[0].to_i
+      fragment.y = coordinates[1].to_i
+      fragment.width = coordinates[2].to_i
+      fragment.height = coordinates[3].to_i
+    elsif key == "text"
+      if value.match /\{\{(.*)\}\}/ #ex grabs {{name}}
+        attribute = value.tr("{}", "")  #removes {{}} = > name
+        attribute = attribute.to_sym
+        fragment.content = attributes[attribute] #this works
+      else
         fragment.content = value
-
-      elsif key =="image"
-        fragment.image_file = "images/signature.png"
       end
-    
+    elsif key == "image"
+      fragment.image_file = "images/signature.png"
+    elsif key == "style"
+      fragment.style = value.to_sym
     end
+  end
   renderer.add_fragment fragment
 end
 

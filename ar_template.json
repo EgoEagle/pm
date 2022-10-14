@@ -1,7 +1,7 @@
 {
      "template": {
-       "title": "2023 Craft Certificate",
-       "category": "certificates",
+       "title": "Assessment Result Batch Report",
+       "category": "Batch Report",
        "page-size": "400 900"
      },
    
@@ -13,16 +13,16 @@
      "sections": {
        "header1": {
          "font-size": "20pt",
-         "location": "50 360 400 30",
+         //"location": "70 360 400 30",
          "text": "NCCER Presents"
        },
        "header2": {
          "font-size": "20pt",
-         "location": "250 360 400 70",
+         "location": "240 360 400 70",
          "text": "2023 Craft Certificate"
        },
        "name": {
-         "font-size": "50pt",
+         "font-size": "40pt",
          "font-style": "italic",
          "location": "160 280 400 110",
          "text": "{{name}}"
@@ -34,7 +34,7 @@
        },
        "presented-date": {
          "location": "140 130 120 250",
-         "text": "{{certificate-date}}"
+         "text": "{{completion_date}}"
        },
    
        "signature": {
