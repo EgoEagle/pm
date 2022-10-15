@@ -26,14 +26,6 @@
          "text": "{{name}}"
        },
    
-       "presented-header": {
-         "location": "150 150 90 220",
-         "text": "Presented On"
-       },
-       "presented-date": {
-         "location": "140 130 120 250",
-         "text": "{{completion_date}}"
-       },
    
        "signature": {
          "location": "450 150 125 120",
