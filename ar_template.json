@@ -23,7 +23,6 @@
        "name": {
          "font-size": "40pt",
          "font-style": "italic",
-         "location": "160 280 400 110",
          "text": "{{name}}"
        },
    
