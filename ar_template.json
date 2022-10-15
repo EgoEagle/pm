@@ -14,12 +14,10 @@
      "sections": {
        "assessment-center": {
          "name": "20pt",
-         
          "text": "NCCER Presents"
        },
        "assessment-site": {
          "font-size": "20pt",
-         "location": "240 360 400 70",
          "text": "2023 Craft Certificate"
        },
        "name": {
