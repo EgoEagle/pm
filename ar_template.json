@@ -2,7 +2,8 @@
      "template": {
        "title": "Assessment Result Batch Report",
        "category": "Batch Report",
-       "page-size": "400 900"
+       "page-size": "400 900",
+       "report_id": "927670"
      },
    
      "defaults": {
@@ -11,12 +12,12 @@
      },
    
      "sections": {
-       "header1": {
-         "font-size": "20pt",
-         //"location": "70 360 400 30",
+       "assessment-center": {
+         "name": "20pt",
+         ""
          "text": "NCCER Presents"
        },
-       "header2": {
+       "assessment-site": {
          "font-size": "20pt",
          "location": "240 360 400 70",
          "text": "2023 Craft Certificate"
