@@ -1,3 +1,4 @@
 PDF Render using Prawn
 Json Template <br>
-Credentials
+Credentials <br>
+Batch Reports
