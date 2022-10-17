@@ -1,35 +1,38 @@
 {
-     "template": {
-       "title": "Assessment Result Batch Report",
-       "category": "Batch Report",
-       "page-size": "400 900",
-       "report_id": "927670"
-     },
-   
-     "defaults": {
-       "font-family": "Times New Roman",
-       "font-size": "12pt"
-     },
-   
-     "sections": {
-       "assessment-center": {
-         "name": "20pt",
-         "text": "NCCER Presents"
-       },
-       "assessment-site": {
-         "font-size": "20pt",
-         "text": "2023 Craft Certificate"
-       },
-       "name": {
-         "font-size": "40pt",
-         "font-style": "italic",
-         "text": "{{name}}"
-       },
-   
-   
-       "signature": {
-         "location": "450 150 125 120",
-         "image": "images/certificates/boyd_signature.png"
-       }
-     }
-   }
+  "template": {
+    "title": "Assessment Result Batch Report",
+    "category": "Batch Report",
+    "page-size": "400 900"
+  },
+  "defaults": {
+    "font-family": "Times New Roman",
+    "font-size": "12pt"
+  },
+  "sections": {
+    "report_id": {
+      "report_id": "927670"
+    },
+    "assessment_center": {
+      "font-size": "20pt",
+      "organization_name": "Assessment Site: ",
+      "organization_id": "Organization ID: ",
+      "organization_address":"3875 I-10 East, Orange, TX 77630 US"
+    },
+    "assessment_site": {
+      "font-size": "20pt",
+      "organization_name": "Triangle Rescue Standby Services LLC",
+      "organization_id": "23272",
+      "organization_address":"3875 I-10 East, Orange, TX 77630 US"
+    },
+    "direct": {
+      "direct": "{{response}}"
+    },
+    "date_printed": {
+      "date_printed" : "{{date}}"
+    },
+    "info":{
+      "card_number": "{{card_number}}",
+      "name": {{name}}
+    }
+  }
+}

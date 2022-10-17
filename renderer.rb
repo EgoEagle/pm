@@ -9,7 +9,30 @@ attributes = {
   certificate: "Carpentry Level One",
   completion_date: "2022-10-10",
   type: "certificate",
+  report_id: "927670",
+  
+  assessment_center: {
+    organization_name: "Triangle Rescue Standby Services LLC",
+    organization_id: "23272",
+    organization_address:"3875 I-10 East, Orange, TX 77630 US"
+  },
+
+  assessment_site: {
+    organization_name: "Triangle Rescue Standby Services LLC",
+    organization_id: "23272",
+    organization_address:"3875 I-10 East, Orange, TX 77630 US"
+  },
+
+  direct: {
+    direct: "{{response}}"
+  },
+
+  info:{
+    "card_number": "{{card_number}}"
+  }
 }
+
+
 
 case attributes[:type]
 when "certificate"
@@ -26,8 +49,6 @@ class Renderer
 
   def initialize(options = {})
     @options = options
-    #@data_hash = data_hash
-    #@collection = collection
     @page_fragments = Array.new
     @draw_boxes = false
   end
@@ -99,7 +120,7 @@ class Renderer
   end
 end
 
-puts
+
 
 renderer = Renderer.new
 
