@@ -27,7 +27,7 @@
 
     "info":{
       "direct": "Send Direct: ",
-      "date_printed" : "Date Printed: ",
+      "date_printed": "Date Printed: ",
       "card_number": "Result ID: ",
       "name": "{{name}}",
       "date": "{{date}}",

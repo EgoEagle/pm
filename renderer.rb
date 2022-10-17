@@ -28,8 +28,16 @@ attributes = {
   },
 
   info:{
-    card_number: "{{card_number}}",
-    name: "{{name}}"
+    direct: "Send Direct: ",
+    date_printed: "Date Printed: ",
+    card_number: "Result ID: ",
+    name: "{{name}}",
+    date: "{{date}}",
+    certificate_type: "{{type}}",
+    certificate_name: "{{certificate_name}}",
+    credential_type: "{{credential_type}}",
+    wallet_card: "Blue Card"
+    
   }
 }
 
