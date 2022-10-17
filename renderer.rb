@@ -7,15 +7,12 @@ require_relative "page_fragment"
 
 time = Time.new
 
-puts time.strftime("%m/%d/%Y").class
-
-
 
 attributes = {
   name: "Tony Lin",
   certificate: "Carpentry Level One",
   completion_date: "2022-10-10",
-  type: "certificate",
+  type: "knowledge_verified",
   report_id: "927670",
   
   assessment_center: {
@@ -34,21 +31,44 @@ attributes = {
     direct: true,
     date_printed: time.strftime("%m/%d/%Y"),
     card_number: "Result ID: ",
-    name: "Tony Lin"
-    
+    name: "Tony Lin",
+
+    entries: {
+      entry1: {
+        date_scored: "10/10/2022",
+        certificate_type: "Certificate",
+        certificate_name: "Scaffold Builder V3",
+        credential_type: "Knowledge Verified",
+        wallet_card: "Blue Card"
+      },
+
+      entry2: {
+        date_scored: "10/10/2022",
+        certificate_type: "Certificate",
+        certificate_name: "Scaffold Builder V3",
+        credential_type: "Knowledge Verified",
+        wallet_card: "Blue Card"
+      }
+    }
   }
 }
-puts attributes[:assessment_center][:organization_name]
+
 
 
 case attributes[:type]
-when "certificate"
+when "certified"
   file = File.read("certificate_template.json")
+
+when "knowledge_verified"
+  file = File.read("ar_template.json")
+
 end
+
 
 #json object
 data_hash = JSON.parse(file)
 #into Ruby Hash
+
 
 class Renderer
   attr_reader :page_fragments
@@ -101,7 +121,7 @@ class Renderer
       color = fragment.color? ? fragment.color : COLOR_WHITE
 
       content.each do |c|
-        pdf.text c, width: fragment.width, align: :center, :color => color, style: fragment.style
+        pdf.text c, width: fragment.width, align: :center, :color => color, style: fragment.style , background_color: "FF0000"
       end
     end
 
@@ -131,38 +151,49 @@ end
 
 renderer = Renderer.new
 
-fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
-fragment.image_file = "images/certificate-of-merit.jpg"
-renderer.add_fragment fragment
-
-data_hash["sections"].each_key do |attr|
-  fragment = PageFragment.new
-  fragment.font = "Times-Roman"
-  data_hash["sections"][attr].each do |key, value|
-    #puts "new #{key}  #{value}"
-    if key == "font-size"
-      fragment.font_size = value.to_i
-    elsif key == "location"
-      coordinates = value.split(" ")
-      fragment.x = coordinates[0].to_i
-      fragment.y = coordinates[1].to_i
-      fragment.width = coordinates[2].to_i
-      fragment.height = coordinates[3].to_i
-    elsif key == "text"
-      if value.match /\{\{(.*)\}\}/ #ex grabs {{name}}
-        attribute = value.tr("{}", "")  #removes {{}} = > name
-        attribute = attribute.to_sym
-        fragment.content = attributes[attribute] #this works
-      else
-        fragment.content = value
-      end
-    elsif key == "image"
-      fragment.image_file = "images/signature.png"
-    elsif key == "style"
-      fragment.style = value.to_sym
-    end
-  end
+case attributes[:type]
+when "certified"
+  fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
+  fragment.image_file = "images/certificate-of-merit.jpg"
   renderer.add_fragment fragment
+
+  data_hash["sections"].each_key do |attr|
+    fragment = PageFragment.new
+    fragment.font = "Times-Roman"
+    data_hash["sections"][attr].each do |key, value|
+      #puts "new #{key}  #{value}"
+      if key == "font-size"
+        fragment.font_size = value.to_i
+      elsif key == "location"
+        coordinates = value.split(" ")
+        fragment.x = coordinates[0].to_i
+        fragment.y = coordinates[1].to_i
+        fragment.width = coordinates[2].to_i
+        fragment.height = coordinates[3].to_i
+      elsif key == "text"
+        if value.match /\{\{(.*)\}\}/ #ex grabs {{name}}
+          attribute = value.tr("{}", "")  #removes {{}} = > name
+          attribute = attribute.to_sym
+          fragment.content = attributes[attribute] #this works
+        else
+          fragment.content = value
+        end
+      elsif key == "image"
+        fragment.image_file = "images/signature.png"
+      elsif key == "style"
+        fragment.style = value.to_sym
+      end
+    end
+    renderer.add_fragment fragment
+  end
+
+when "knowledge_verified"
+  fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
+  fragment.background_color = "FF0000"
+  fragment.content = "BA"
+  renderer.add_fragment fragment
+  
 end
+
 
 renderer.render
