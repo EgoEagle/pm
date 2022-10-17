@@ -2,7 +2,8 @@
      "template": {
        "title": "2023 Craft Certificate",
        "category": "certificates",
-       "page-size": "400 900"
+       "page-size": "400 900",
+       "color" : "FFFFFF"
      },
    
      "defaults": {

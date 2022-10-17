@@ -68,11 +68,10 @@ end
 #json object
 data_hash = JSON.parse(file)
 #into Ruby Hash
-
+COLOR = data_hash["template"]["color"]
 
 class Renderer
   attr_reader :page_fragments
-  COLOR_WHITE = "FFFFFF"
 
   def initialize(options = {})
     @options = options
@@ -118,10 +117,10 @@ class Renderer
         raise "Unsupported content type #{fragment.content.class}"
       end
 
-      color = fragment.color? ? fragment.color : COLOR_WHITE
+      color = fragment.color? ? fragment.color : COLOR
 
       content.each do |c|
-        pdf.text c, width: fragment.width, align: :center, :color => color, style: fragment.style , background_color: "FF0000"
+        pdf.text c, width: fragment.width, align: :center, :color => color, style: fragment.style
       end
     end
 
@@ -189,8 +188,12 @@ when "certified"
 
 when "knowledge_verified"
   fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
-  fragment.background_color = "FF0000"
+  fragment.x = 100
+  fragment.y = 100
+  fragment.width = 100
+  fragment.height = 50
   fragment.content = "BA"
+
   renderer.add_fragment fragment
   
 end

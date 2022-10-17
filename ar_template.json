@@ -2,7 +2,8 @@
   "template": {
     "title": "Assessment Result Batch Report",
     "category": "Batch Report",
-    "page-size": "400 900"
+    "page-size": "400 900",
+    "color" : "000000"
   },
   "defaults": {
     "font-family": "Times New Roman",
