@@ -10,29 +10,31 @@
   },
   "sections": {
     "report_id": {
-      "report_id": "927670"
+      "report_id": "{{id}}"
     },
     "assessment_center": {
       "font-size": "20pt",
-      "organization_name": "Assessment Site: ",
+      "organization_name": "Assessment Center: ",
       "organization_id": "Organization ID: ",
-      "organization_address":"3875 I-10 East, Orange, TX 77630 US"
+      "organization_address":"{{organization_address}}"
     },
     "assessment_site": {
       "font-size": "20pt",
-      "organization_name": "Triangle Rescue Standby Services LLC",
-      "organization_id": "23272",
-      "organization_address":"3875 I-10 East, Orange, TX 77630 US"
+      "organization_name": "Assessment Site: ",
+      "organization_id": "Organization ID: ",
+      "organization_address":"{{organization_address}}"
     },
-    "direct": {
-      "direct": "{{response}}"
-    },
-    "date_printed": {
-      "date_printed" : "{{date}}"
-    },
+
     "info":{
-      "card_number": "{{card_number}}",
-      "name": {{name}}
+      "direct": "Send Direct: ",
+      "date_printed" : "Date Printed: ",
+      "card_number": "Result ID: ",
+      "name": "{{name}}",
+      "date": "{{date}}",
+      "certificate_type": "{{type}}",
+      "certificate_name": "{{certificate_name}}",
+      "credential_type": "{{credential_type}}",
+      "wallet_card": "Blue Card"
     }
   }
 }

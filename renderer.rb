@@ -28,7 +28,8 @@ attributes = {
   },
 
   info:{
-    "card_number": "{{card_number}}"
+    card_number: "{{card_number}}",
+    name: "{{name}}"
   }
 }
 
