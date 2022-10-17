@@ -4,6 +4,13 @@ require "date"
 
 require_relative "page_fragment"
 
+
+time = Time.new
+
+puts time.strftime("%m/%d/%Y").class
+
+
+
 attributes = {
   name: "Tony Lin",
   certificate: "Carpentry Level One",
@@ -23,24 +30,15 @@ attributes = {
     organization_address:"3875 I-10 East, Orange, TX 77630 US"
   },
 
-  direct: {
-    direct: "{{response}}"
-  },
-
-  info:{
-    direct: "Send Direct: ",
-    date_printed: "Date Printed: ",
+  info: {
+    direct: true,
+    date_printed: time.strftime("%m/%d/%Y"),
     card_number: "Result ID: ",
-    name: "{{name}}",
-    date: "{{date}}",
-    certificate_type: "{{type}}",
-    certificate_name: "{{certificate_name}}",
-    credential_type: "{{credential_type}}",
-    wallet_card: "Blue Card"
+    name: "Tony Lin"
     
   }
 }
-
+puts attributes[:assessment_center][:organization_name]
 
 
 case attributes[:type]
