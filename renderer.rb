@@ -10,23 +10,23 @@ attributes = {
   name: "Tony Lin",
   certificate: "Carpentry Level One",
   completion_date: "2022-10-10",
-  type: "certified",
-  report_id: "927670",
+  type: "ar_batch_report",
+  report_id: "34512",
 
   assessment_center: {
     organization_name: "Triangle Rescue Standby Services LLC",
-    organization_id: "23272",
+    organization_id: "98373",
     organization_address: "3875 I-10 East, Orange, TX 77630 US",
   },
 
   assessment_site: {
     organization_name: "Triangle Rescue Standby Services LLC",
-    organization_id: "23272",
+    organization_id: "98373",
     organization_address: "3875 I-10 East, Orange, TX 77630 US",
   },
 
   info: {
-    direct: true,
+    direct: "Yes",
     date_printed: time.strftime("%m/%d/%Y"),
     card_number: "Result ID: ",
     name: "Tony Lin",
@@ -51,23 +51,23 @@ attributes = {
   },
 }
 
-
 case attributes[:type]
 when "certified"
   file = File.read("certificate_template.json")
 when "ar_batch_report"
   file = File.read("ar_template.json")
 end
+
 data_hash = JSON.parse(file)
 COLOR = data_hash["template"]["color"]
 BACKGROUND = data_hash["template"]["background_color"]
-
 
 #json object
 #into Ruby Hash
 
 class Renderer
   attr_accessor :page_fragments
+
   def initialize(options = {})
     @options = options
     @page_fragments = Array.new
@@ -113,9 +113,10 @@ class Renderer
       end
 
       color = fragment.color? ? fragment.color : COLOR
+      alignment = BACKGROUND.nil? ? "center" : "left"
 
       content.each do |c|
-        pdf.text c, width: fragment.width, align: :center, :color => color, style: fragment.style
+        pdf.text c, :leading => 0, width: fragment.width, align: alignment.to_sym, :color => color, style: fragment.style
       end
     end
 
@@ -131,7 +132,7 @@ class Renderer
     Prawn::Document.generate(filename, page_layout: :landscape) do |pdf|
       # pdf.stroke_axis
       if !BACKGROUND.nil?
-        pdf.bounding_box([pdf.bounds.left-50, pdf.bounds.top+50], width: 900, height: 700) do
+        pdf.bounding_box([pdf.bounds.left - 50, pdf.bounds.top + 50], width: 900, height: 700) do
           pdf.fill_color BACKGROUND
           pdf.fill { pdf.rectangle [pdf.bounds.left, pdf.bounds.top], pdf.bounds.right, pdf.bounds.top }
         end
@@ -184,14 +185,54 @@ when "certified"
     end
     renderer.add_fragment fragment
   end
-
 when "ar_batch_report"
   fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
-  fragment.background_color = data_hash["template"]["background_color"]
+  fragment.font_size = 20
+  fragment.font = "Courier-Bold"
+  fragment.content = data_hash["template"]["title"]
   renderer.add_fragment fragment
+  x = 50
+  y = 360
+  data_hash["sections"].each_key do |attr|
+    fragment = PageFragment.new
+    fragment.font = "Courier"
 
-else 
+    data_hash["sections"][attr].each do |key, value|
+      #puts "new #{key}  #{value}"
+      if key == "font-size"
+        fragment.font_size = value.to_i
+      elsif key == "organization_name" || key == "report_id" || key == "organization_id" || key == "organization_address"
+        fragment.y = y + 150
+        fragment.width = 500
+        fragment.height = 70
+        y -= 20
+        content = value
+        if content.match /\{\{(.*)\}\}/ #ex grabs {{name}}
+          attribute = content.tr("{}", "")  #removes {{}} = > name
+          content = attributes[attr.to_sym][attribute.to_sym] #this works
+        elsif key == "report_id"
+          content << attributes[:report_id]
+          y += 45
+        else
+          content << attributes[attr.to_sym][key.to_sym]
+        end
+        fragment.content << content << "\n"
+      elsif attr == "info"
+        if key == "direct"
+          fragment.y = y + 150
+          fragment.width = 500
+          fragment.height = 70
+          content = value
+          puts content
+          fragment.content << content
+        end
+      elsif attr == "style"
+        fragment.style = attr.to_sym
+      end
+    end
+    renderer.add_fragment fragment
+  end
+else
   puts "Error No Template"
-
 end
 renderer.render

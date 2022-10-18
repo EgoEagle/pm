@@ -4,7 +4,7 @@
     "category": "Batch Report",
     "page-size": "400 900",
     "color" : "000000",
-    "background_color": "FFFF00"
+    "background_color": "FFF275"
   },
   "defaults": {
     "font-family": "Times New Roman",
@@ -12,16 +12,17 @@
   },
   "sections": {
     "report_id": {
-      "report_id": "{{id}}"
+      "font-size": "14pt",
+      "report_id": "Assessment Result Batch Report ID #: "
     },
     "assessment_center": {
-      "font-size": "20pt",
+      "font-size": "14pt",
       "organization_name": "Assessment Center: ",
       "organization_id": "Organization ID: ",
       "organization_address":"{{organization_address}}"
     },
     "assessment_site": {
-      "font-size": "20pt",
+      "font-size": "14pt",
       "organization_name": "Assessment Site: ",
       "organization_id": "Organization ID: ",
       "organization_address":"{{organization_address}}"
