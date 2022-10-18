@@ -199,13 +199,15 @@ when "ar_batch_report"
 
     data_hash["sections"][attr].each do |key, value|
       #puts "new #{key}  #{value}"
+
+      fragment.y = y + 150
+      fragment.width = 500
+      fragment.height = 70
+      y -= 15
+
       if key == "font-size"
         fragment.font_size = value.to_i
       elsif key == "organization_name" || key == "report_id" || key == "organization_id" || key == "organization_address"
-        fragment.y = y + 150
-        fragment.width = 500
-        fragment.height = 70
-        y -= 20
         content = value
         if content.match /\{\{(.*)\}\}/ #ex grabs {{name}}
           attribute = content.tr("{}", "")  #removes {{}} = > name
@@ -218,13 +220,13 @@ when "ar_batch_report"
         end
         fragment.content << content << "\n"
       elsif attr == "info"
+        puts attr
         if key == "direct"
-          fragment.y = y + 150
-          fragment.width = 500
-          fragment.height = 70
+          y += 95
           content = value
-          puts content
-          fragment.content << content
+          fragment.content << content << attributes[attr.to_sym][key.to_sym] << "\n"
+        elsif key == "date_printed"
+          fragment.content << value << attributes[attr.to_sym][key.to_sym] << "\n"
         end
       elsif attr == "style"
         fragment.style = attr.to_sym

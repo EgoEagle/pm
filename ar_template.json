@@ -29,6 +29,7 @@
     },
 
     "info":{
+      "font-size": "14pt",
       "direct": "Send Direct: ",
       "date_printed": "Date Printed: ",
       "card_number": "Result ID: ",
