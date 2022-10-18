@@ -4,27 +4,25 @@ require "date"
 
 require_relative "page_fragment"
 
-
 time = Time.new
-
 
 attributes = {
   name: "Tony Lin",
   certificate: "Carpentry Level One",
   completion_date: "2022-10-10",
-  type: "knowledge_verified",
+  type: "certified",
   report_id: "927670",
-  
+
   assessment_center: {
     organization_name: "Triangle Rescue Standby Services LLC",
     organization_id: "23272",
-    organization_address:"3875 I-10 East, Orange, TX 77630 US"
+    organization_address: "3875 I-10 East, Orange, TX 77630 US",
   },
 
   assessment_site: {
     organization_name: "Triangle Rescue Standby Services LLC",
     organization_id: "23272",
-    organization_address:"3875 I-10 East, Orange, TX 77630 US"
+    organization_address: "3875 I-10 East, Orange, TX 77630 US",
   },
 
   info: {
@@ -39,7 +37,7 @@ attributes = {
         certificate_type: "Certificate",
         certificate_name: "Scaffold Builder V3",
         credential_type: "Knowledge Verified",
-        wallet_card: "Blue Card"
+        wallet_card: "Blue Card",
       },
 
       entry2: {
@@ -47,32 +45,29 @@ attributes = {
         certificate_type: "Certificate",
         certificate_name: "Scaffold Builder V3",
         credential_type: "Knowledge Verified",
-        wallet_card: "Blue Card"
-      }
-    }
-  }
+        wallet_card: "Blue Card",
+      },
+    },
+  },
 }
-
 
 
 case attributes[:type]
 when "certified"
   file = File.read("certificate_template.json")
-
-when "knowledge_verified"
+when "ar_batch_report"
   file = File.read("ar_template.json")
-
 end
+data_hash = JSON.parse(file)
+COLOR = data_hash["template"]["color"]
+BACKGROUND = data_hash["template"]["background_color"]
 
 
 #json object
-data_hash = JSON.parse(file)
 #into Ruby Hash
-COLOR = data_hash["template"]["color"]
 
 class Renderer
-  attr_reader :page_fragments
-
+  attr_accessor :page_fragments
   def initialize(options = {})
     @options = options
     @page_fragments = Array.new
@@ -135,6 +130,13 @@ class Renderer
   def render
     Prawn::Document.generate(filename, page_layout: :landscape) do |pdf|
       # pdf.stroke_axis
+      if !BACKGROUND.nil?
+        pdf.bounding_box([pdf.bounds.left-50, pdf.bounds.top+50], width: 900, height: 700) do
+          pdf.fill_color BACKGROUND
+          pdf.fill { pdf.rectangle [pdf.bounds.left, pdf.bounds.top], pdf.bounds.right, pdf.bounds.top }
+        end
+      end
+
       self.page_fragments.each do |fragment|
         render_fragment(pdf, fragment)
       end
@@ -146,10 +148,7 @@ class Renderer
   end
 end
 
-
-
 renderer = Renderer.new
-
 case attributes[:type]
 when "certified"
   fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
@@ -186,17 +185,13 @@ when "certified"
     renderer.add_fragment fragment
   end
 
-when "knowledge_verified"
+when "ar_batch_report"
   fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
-  fragment.x = 100
-  fragment.y = 100
-  fragment.width = 100
-  fragment.height = 50
-  fragment.content = "BA"
-
+  fragment.background_color = data_hash["template"]["background_color"]
   renderer.add_fragment fragment
-  
+
+else 
+  puts "Error No Template"
+
 end
-
-
 renderer.render

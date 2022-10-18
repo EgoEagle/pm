@@ -1,7 +1,7 @@
 class PageFragment
   attr_accessor :x, :y, :width, :height, :name
   attr_accessor :content, :font, :font_size, :color
-  attr_accessor :image_file, :style ,:background_color
+  attr_accessor :image_file, :style, :background_color
 
   def initialize(options = {})
     self.x = options[:x] || 0
@@ -15,7 +15,7 @@ class PageFragment
     self.font_size = options[:font_size] || 0
     self.color = options[:color]
     self.style = options[:style]
-    self.style = options[:background_color]
+    self.background_color = options[:background_color]
   end
 
   def origin

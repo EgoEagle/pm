@@ -3,7 +3,8 @@
     "title": "Assessment Result Batch Report",
     "category": "Batch Report",
     "page-size": "400 900",
-    "color" : "000000"
+    "color" : "000000",
+    "background_color": "FFFF00"
   },
   "defaults": {
     "font-family": "Times New Roman",
