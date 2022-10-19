@@ -4,10 +4,12 @@
     "category": "Batch Report",
     "page-size": "400 900",
     "color" : "000000",
-    "background_color": "FFF275"
+    "background_color": "FFF275",
+    "font-size": "20pt",
+    "font-family": "Courier-Bold"
   },
   "defaults": {
-    "font-family": "Times New Roman",
+    "font-family": "Courier",
     "font-size": "12pt"
   },
   "sections": {

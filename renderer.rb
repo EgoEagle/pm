@@ -116,8 +116,7 @@ class Renderer
       alignment = BACKGROUND.nil? ? "center" : "left"
 
       content.each do |c|
-        pdf.text c, :leading => 0, width: fragment.width,
-                    align: alignment.to_sym, :color => color, style: fragment.style
+        pdf.text c, :leading => 0, width: fragment.width, align: alignment.to_sym, :color => color, style: fragment.style
       end
     end
 
@@ -153,54 +152,57 @@ class Renderer
   end
 end
 
-
 def render_batch_report(renderer)
   fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
-  fragment.font_size = 20
-  fragment.font = "Courier-Bold"
+  fragment.font = DATA_HASH["template"]["font-family"]
+  fragment.font_size = DATA_HASH["template"]["font-size"].to_i
   fragment.content = DATA_HASH["template"]["title"]
   renderer.add_fragment fragment
-  x = 50
-  y = 360
+
+  y = fragment.width / 2
+
   DATA_HASH["sections"].each_key do |attr|
-    fragment = PageFragment.new
-    fragment.font = "Courier"
+      fragment = PageFragment.new
+      fragment.font = DATA_HASH["defaults"]["font-family"]
+      case attr
+      when "report_id"
+        fragment.y = y + 150
+        fragment.width = 500
+        fragment.height = 70
+        fragment.font_size = DATA_HASH["sections"][attr]["font-size"].to_i
+        fragment.content = DATA_HASH["sections"][attr]["report_id"]
+        fragment.content << ATTRIBUTES[:report_id] 
+      when "assessment_center"
+        fragment.y = y + 150
+        fragment.width = 500
+        fragment.height = 70
+        DATA_HASH["sections"][attr].each do |key,value|
+          if key == "font-size"
+            fragment.font_size = DATA_HASH["sections"][attr]["font-size"].to_i
+            
+          elsif value.match /\{\{(.*)\}\}/ #ex grabs {{name}}
+            puts key
+            puts value
+            attribute = value.tr("{}", "")  #removes {{}} = > name
+            fragment.content << ATTRIBUTES[attr.to_sym][attribute.to_sym] <<"\n" #this works
 
-    DATA_HASH["sections"][attr].each do |key, value|
-      #puts "new #{key}  #{value}"
+          elsif key == "organization_name"
+            fragment.content << DATA_HASH["sections"][attr]["organization_name"]
+            fragment.content << ATTRIBUTES[attr.to_sym][:organization_name] <<"\n"
 
-      fragment.y = y + 150
-      fragment.width = 500
-      fragment.height = 70
-      y -= 15
 
-      if key == "font-size"
-        fragment.font_size = value.to_i
-      elsif key == "organization_name" || key == "report_id" || key == "organization_id" || key == "organization_address"
-        content = value
-        if content.match /\{\{(.*)\}\}/ #ex grabs {{name}}
-          attribute = content.tr("{}", "")  #removes {{}} = > name
-          content = ATTRIBUTES[attr.to_sym][attribute.to_sym] #this works
-        elsif key == "report_id"
-          content << ATTRIBUTES[:report_id]
-          y += 45
-        else
-          content << ATTRIBUTES[attr.to_sym][key.to_sym]
+          end
         end
-        fragment.content << content << "\n"
-      elsif attr == "info"
-        if key == "direct"
-          y += 95
-          content = value
-          fragment.content << content << ATTRIBUTES[attr.to_sym][key.to_sym] << "\n"
-        elsif key == "date_printed"
-          fragment.content << value << ATTRIBUTES[attr.to_sym][key.to_sym] << "\n"
-        end
-      elsif attr == "style"
-        fragment.style = attr.to_sym
+        #fragment.content = DATA_HASH["sections"][attr]["organization_id"]
+        #fragment.content << ATTRIBUTES[attr.to_sym][key.to_sym]
+        #fragment.content = DATA_HASH["sections"][attr][:organization_adress]
+        #fragment.content << ATTRIBUTES[attr.to_sym][key.to_sym]
+
+      when "assessment_site"
+      when "info"
       end
-    end
-    renderer.add_fragment fragment
+      y -= 15
+      renderer.add_fragment fragment
   end
 end
 
@@ -243,10 +245,6 @@ end
 
 
 
-
-
-
-
 renderer = Renderer.new
 case ATTRIBUTES[:type]
 when "certified"
@@ -257,6 +255,3 @@ else
   puts "Error No Template"
 end
 renderer.render
-
-
-
