@@ -6,7 +6,7 @@ require_relative "page_fragment"
 
 time = Time.new
 
-attributes = {
+ATTRIBUTES = {
   name: "Tony Lin",
   certificate: "Carpentry Level One",
   completion_date: "2022-10-10",
@@ -51,16 +51,16 @@ attributes = {
   },
 }
 
-case attributes[:type]
+case ATTRIBUTES[:type]
 when "certified"
   file = File.read("certificate_template.json")
 when "ar_batch_report"
   file = File.read("ar_template.json")
 end
 
-data_hash = JSON.parse(file)
-COLOR = data_hash["template"]["color"]
-BACKGROUND = data_hash["template"]["background_color"]
+DATA_HASH = JSON.parse(file)
+COLOR = DATA_HASH["template"]["color"]
+BACKGROUND = DATA_HASH["template"]["background_color"]
 
 #json object
 #into Ruby Hash
@@ -116,7 +116,8 @@ class Renderer
       alignment = BACKGROUND.nil? ? "center" : "left"
 
       content.each do |c|
-        pdf.text c, :leading => 0, width: fragment.width, align: alignment.to_sym, :color => color, style: fragment.style
+        pdf.text c, :leading => 0, width: fragment.width,
+                    align: alignment.to_sym, :color => color, style: fragment.style
       end
     end
 
@@ -131,15 +132,18 @@ class Renderer
   def render
     Prawn::Document.generate(filename, page_layout: :landscape) do |pdf|
       # pdf.stroke_axis
-      if !BACKGROUND.nil?
-        pdf.bounding_box([pdf.bounds.left - 50, pdf.bounds.top + 50], width: 900, height: 700) do
-          pdf.fill_color BACKGROUND
-          pdf.fill { pdf.rectangle [pdf.bounds.left, pdf.bounds.top], pdf.bounds.right, pdf.bounds.top }
-        end
-      end
-
+      set_bg_color(pdf)
       self.page_fragments.each do |fragment|
         render_fragment(pdf, fragment)
+      end
+    end
+  end
+
+  def set_bg_color(pdf)
+    if !BACKGROUND.nil?
+      pdf.bounding_box([pdf.bounds.left - 50, pdf.bounds.top + 50], width: 900, height: 700) do
+        pdf.fill_color BACKGROUND
+        pdf.fill { pdf.rectangle [pdf.bounds.left, pdf.bounds.top], pdf.bounds.right, pdf.bounds.top }
       end
     end
   end
@@ -149,55 +153,20 @@ class Renderer
   end
 end
 
-renderer = Renderer.new
-case attributes[:type]
-when "certified"
-  fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
-  fragment.image_file = "images/certificate-of-merit.jpg"
-  renderer.add_fragment fragment
 
-  data_hash["sections"].each_key do |attr|
-    fragment = PageFragment.new
-    fragment.font = "Times-Roman"
-    data_hash["sections"][attr].each do |key, value|
-      #puts "new #{key}  #{value}"
-      if key == "font-size"
-        fragment.font_size = value.to_i
-      elsif key == "location"
-        coordinates = value.split(" ")
-        fragment.x = coordinates[0].to_i
-        fragment.y = coordinates[1].to_i
-        fragment.width = coordinates[2].to_i
-        fragment.height = coordinates[3].to_i
-      elsif key == "text"
-        if value.match /\{\{(.*)\}\}/ #ex grabs {{name}}
-          attribute = value.tr("{}", "")  #removes {{}} = > name
-          attribute = attribute.to_sym
-          fragment.content = attributes[attribute] #this works
-        else
-          fragment.content = value
-        end
-      elsif key == "image"
-        fragment.image_file = "images/signature.png"
-      elsif key == "style"
-        fragment.style = value.to_sym
-      end
-    end
-    renderer.add_fragment fragment
-  end
-when "ar_batch_report"
+def render_batch_report(renderer)
   fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
   fragment.font_size = 20
   fragment.font = "Courier-Bold"
-  fragment.content = data_hash["template"]["title"]
+  fragment.content = DATA_HASH["template"]["title"]
   renderer.add_fragment fragment
   x = 50
   y = 360
-  data_hash["sections"].each_key do |attr|
+  DATA_HASH["sections"].each_key do |attr|
     fragment = PageFragment.new
     fragment.font = "Courier"
 
-    data_hash["sections"][attr].each do |key, value|
+    DATA_HASH["sections"][attr].each do |key, value|
       #puts "new #{key}  #{value}"
 
       fragment.y = y + 150
@@ -211,22 +180,21 @@ when "ar_batch_report"
         content = value
         if content.match /\{\{(.*)\}\}/ #ex grabs {{name}}
           attribute = content.tr("{}", "")  #removes {{}} = > name
-          content = attributes[attr.to_sym][attribute.to_sym] #this works
+          content = ATTRIBUTES[attr.to_sym][attribute.to_sym] #this works
         elsif key == "report_id"
-          content << attributes[:report_id]
+          content << ATTRIBUTES[:report_id]
           y += 45
         else
-          content << attributes[attr.to_sym][key.to_sym]
+          content << ATTRIBUTES[attr.to_sym][key.to_sym]
         end
         fragment.content << content << "\n"
       elsif attr == "info"
-        puts attr
         if key == "direct"
           y += 95
           content = value
-          fragment.content << content << attributes[attr.to_sym][key.to_sym] << "\n"
+          fragment.content << content << ATTRIBUTES[attr.to_sym][key.to_sym] << "\n"
         elsif key == "date_printed"
-          fragment.content << value << attributes[attr.to_sym][key.to_sym] << "\n"
+          fragment.content << value << ATTRIBUTES[attr.to_sym][key.to_sym] << "\n"
         end
       elsif attr == "style"
         fragment.style = attr.to_sym
@@ -234,7 +202,61 @@ when "ar_batch_report"
     end
     renderer.add_fragment fragment
   end
+end
+
+
+def render_certificate(renderer)
+  fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
+  fragment.image_file = "images/certificate-of-merit.jpg"
+  renderer.add_fragment fragment
+
+  DATA_HASH["sections"].each_key do |attr|
+    fragment = PageFragment.new
+    fragment.font = DATA_HASH["defaults"]["font-family"]
+    DATA_HASH["sections"][attr].each do |key, value|
+      #puts "new #{key}  #{value}"
+      if key == "font-size"
+        fragment.font_size = value.to_i
+      elsif key == "location"
+        coordinates = value.split(" ")
+        fragment.x = coordinates[0].to_i
+        fragment.y = coordinates[1].to_i
+        fragment.width = coordinates[2].to_i
+        fragment.height = coordinates[3].to_i
+      elsif key == "text"
+        if value.match /\{\{(.*)\}\}/ #ex grabs {{name}}
+          attribute = value.tr("{}", "")  #removes {{}} = > name
+          attribute = attribute.to_sym
+          fragment.content = ATTRIBUTES[attribute] #this works
+        else
+          fragment.content = value
+        end
+      elsif key == "image"
+        fragment.image_file = "images/signature.png"
+      elsif key == "style"
+        fragment.style = value.to_sym
+      end
+    end
+    renderer.add_fragment fragment
+  end
+end
+
+
+
+
+
+
+
+renderer = Renderer.new
+case ATTRIBUTES[:type]
+when "certified"
+  render_certificate(renderer)
+when "ar_batch_report"
+  render_batch_report(renderer)
 else
   puts "Error No Template"
 end
 renderer.render
+
+
+
