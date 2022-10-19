@@ -158,54 +158,56 @@ def render_batch_report(renderer)
   fragment.font_size = DATA_HASH["template"]["font-size"].to_i
   fragment.content = DATA_HASH["template"]["title"]
   renderer.add_fragment fragment
-
+  spacing = 0
   y = fragment.width / 2
 
   DATA_HASH["sections"].each_key do |attr|
-      fragment = PageFragment.new
-      fragment.font = DATA_HASH["defaults"]["font-family"]
-      case attr
-      when "report_id"
-        fragment.y = y + 150
-        fragment.width = 500
-        fragment.height = 70
+    fragment = PageFragment.new
+    fragment.font = DATA_HASH["defaults"]["font-family"]
+    fragment.y = y + DATA_HASH["defaults"]["height_spacing"].to_i
+    fragment.width = DATA_HASH["defaults"]["width"].to_i
+    fragment.height = DATA_HASH["defaults"]["height"].to_i
+    spacing = DATA_HASH["sections"][attr]["line-spacing".to_s].to_i
+
+    case attr
+    when "report_id"
+      fragment.font_size = DATA_HASH["sections"][attr]["font-size"].to_i
+      fragment.content = DATA_HASH["sections"][attr]["report_id"]
+      fragment.content << ATTRIBUTES[:report_id]
+      y -= spacing #space every each section
+
+    when "assessment_center", "assessment_site"
+      DATA_HASH["sections"][attr].each do |key, value|
+  
         fragment.font_size = DATA_HASH["sections"][attr]["font-size"].to_i
-        fragment.content = DATA_HASH["sections"][attr]["report_id"]
-        fragment.content << ATTRIBUTES[:report_id] 
-      when "assessment_center"
-        fragment.y = y + 150
-        fragment.width = 500
-        fragment.height = 70
-        DATA_HASH["sections"][attr].each do |key,value|
-          if key == "font-size"
-            fragment.font_size = DATA_HASH["sections"][attr]["font-size"].to_i
-            
-          elsif value.match /\{\{(.*)\}\}/ #ex grabs {{name}}
-            puts key
-            puts value
-            attribute = value.tr("{}", "")  #removes {{}} = > name
-            fragment.content << ATTRIBUTES[attr.to_sym][attribute.to_sym] <<"\n" #this works
-
-          elsif key == "organization_name"
-            fragment.content << DATA_HASH["sections"][attr]["organization_name"]
-            fragment.content << ATTRIBUTES[attr.to_sym][:organization_name] <<"\n"
-
-
-          end
+        if value.match /\{\{(.*)\}\}/ #ex grabs {{name}}
+          attribute = value.tr("{}", "")  #removes {{}} = > name
+          fragment.content << ATTRIBUTES[attr.to_sym][attribute.to_sym] << "\n" #this works
+        elsif key == "organization_name" || key == "organization_id"
+          fragment.content << DATA_HASH["sections"][attr.to_s][key.to_s]
+          fragment.content << ATTRIBUTES[attr.to_sym][key.to_sym] << "\n"
         end
-        #fragment.content = DATA_HASH["sections"][attr]["organization_id"]
-        #fragment.content << ATTRIBUTES[attr.to_sym][key.to_sym]
-        #fragment.content = DATA_HASH["sections"][attr][:organization_adress]
-        #fragment.content << ATTRIBUTES[attr.to_sym][key.to_sym]
-
-      when "assessment_site"
-      when "info"
       end
-      y -= 15
-      renderer.add_fragment fragment
+      y -= spacing
+
+    when "info"
+      DATA_HASH["sections"][attr].each do |key, value|
+        fragment.font_size = DATA_HASH["sections"][attr]["font-size"].to_i
+        case key
+        when "direct"
+          fragment.content << DATA_HASH["sections"][attr.to_s][key.to_s]
+          fragment.content << ATTRIBUTES[attr.to_sym][key.to_sym] << "\n"
+
+        when "date_printed"
+          fragment.content << DATA_HASH["sections"][attr.to_s][key.to_s]
+          fragment.content << ATTRIBUTES[attr.to_sym][key.to_sym] << "\n"
+        end
+
+      end
+    end
+    renderer.add_fragment fragment
   end
 end
-
 
 def render_certificate(renderer)
   fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
@@ -242,8 +244,6 @@ def render_certificate(renderer)
     renderer.add_fragment fragment
   end
 end
-
-
 
 renderer = Renderer.new
 case ATTRIBUTES[:type]

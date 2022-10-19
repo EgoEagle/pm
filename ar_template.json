@@ -10,24 +10,30 @@
   },
   "defaults": {
     "font-family": "Courier",
-    "font-size": "12pt"
+    "font-size": "12pt",
+    "height_spacing": "150",
+    "width":"500",
+    "height":"70"
   },
   "sections": {
     "report_id": {
       "font-size": "14pt",
-      "report_id": "Assessment Result Batch Report ID #: "
+      "report_id": "Assessment Result Batch Report ID #: ",
+      "line-spacing": "15"
     },
     "assessment_center": {
       "font-size": "14pt",
       "organization_name": "Assessment Center: ",
       "organization_id": "Organization ID: ",
-      "organization_address":"{{organization_address}}"
+      "organization_address":"{{organization_address}}",
+      "line-spacing": "55"
     },
     "assessment_site": {
       "font-size": "14pt",
       "organization_name": "Assessment Site: ",
       "organization_id": "Organization ID: ",
-      "organization_address":"{{organization_address}}"
+      "organization_address":"{{organization_address}}",
+      "line-spacing": "55"
     },
 
     "info":{
@@ -40,7 +46,8 @@
       "certificate_type": "{{type}}",
       "certificate_name": "{{certificate_name}}",
       "credential_type": "{{credential_type}}",
-      "wallet_card": "Blue Card"
+      "wallet_card": "Blue Card",
+      "line-spacing": "55"
     }
   }
 }
