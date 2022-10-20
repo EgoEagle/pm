@@ -29,7 +29,7 @@ ATTRIBUTES = {
   info: {
     direct: "Yes",
     date_printed: time.strftime("%m/%d/%Y"),
-    card_number: "Result ID: ",
+    card_number: "98232",
     name: "Tony Lin",
 
     entries: {
@@ -38,7 +38,7 @@ ATTRIBUTES = {
         certificate_type: "Certificate",
         certificate_name: "Scaffold Builder V3",
         credential_type: "Knowledge Verified",
-        wallet_card: "Blue Card",
+        wallet_card: "X",
       },
 
       entry2: {
@@ -46,7 +46,7 @@ ATTRIBUTES = {
         certificate_type: "Certificate",
         certificate_name: "Scaffold Builder V3",
         credential_type: "Knowledge Verified",
-        wallet_card: "Blue Card",
+        wallet_card: "X",
       },
     },
   },
@@ -55,15 +55,21 @@ ATTRIBUTES = {
 case ATTRIBUTES[:type]
 when "certified"
   file = File.read("certificate_template.json")
+  DATA_HASH = JSON.parse(file)
+  COLOR = DATA_HASH["template"]["color"]
+  BACKGROUND = DATA_HASH["template"]["background_color"]
 when "ar_batch_report"
   file = File.read("ar_template.json")
+  DATA_HASH = JSON.parse(file)
+  COLOR = DATA_HASH["template"]["color"]
+  BACKGROUND = DATA_HASH["template"]["background_color"]
+else
+  puts "Non Existent"
+  BACKGROUND = "FFFFFF"
 end
 
-DATA_HASH = JSON.parse(file)
-COLOR = DATA_HASH["template"]["color"]
-BACKGROUND = DATA_HASH["template"]["background_color"]
 
-puts ATTRIBUTES[:info][:entries].count
+#puts ATTRIBUTES[:info][:entries].count
 
 #json object
 #into Ruby Hash
@@ -135,17 +141,36 @@ class Renderer
     Prawn::Document.generate(filename, page_layout: :landscape) do |pdf|
       # pdf.stroke_axis
       set_bg_color(pdf)
+      generate_table(pdf)
+
       self.page_fragments.each do |fragment|
         render_fragment(pdf, fragment)
       end
     end
   end
 
+
+  def generate_table(pdf)
+    header_text = [[{content: "Result Id", colspan: 9}]]
+    tb = [["NCCER Card #", "Name", "Date Scored", "Certification Type", "Credential Type","Certification Name","Blue Card","Silver Card","Gold Card"],
+      ["d1", "d2", "d3", "d4", "d2", "d3", "d4", "d2", "d2"],
+      ["d1", "d2", "d3", "d4", "d2", "d3", "d4", "d2", "d2"],
+      ["d1", "d2", "d3", "d4", "d2", "d3", "d4", "d2", "d2"]]
+    
+    pdf.bounding_box([0, 300], width: 900, height: 600) do  
+      pdf.table(header_text + tb, header: 2)do
+        row(0).font_style = :bold
+      end
+    end
+
+  end
+
   def set_bg_color(pdf)
     if !BACKGROUND.nil?
-      pdf.bounding_box([pdf.bounds.left - 50, pdf.bounds.top + 50], width: 900, height: 700) do
+      pdf.canvas do
         pdf.fill_color BACKGROUND
-        pdf.fill { pdf.rectangle [pdf.bounds.left, pdf.bounds.top], pdf.bounds.right, pdf.bounds.top }
+        pdf.fill_rectangle [pdf.bounds.left, pdf.bounds.top], pdf.bounds.right, pdf.bounds.top
+        pdf.fill_color "000000"
       end
     end
   end
@@ -194,6 +219,16 @@ def render_batch_report(renderer)
       y -= spacing
 
     when "info"
+      Array info = Array.new
+      info.push(ATTRIBUTES[:info][:card_number],ATTRIBUTES[:info][:name])
+      ATTRIBUTES[:info][:entries].each_key do |attr|
+        ATTRIBUTES[:info][:entries][attr.to_sym].each do |key,value|
+          puts value
+        end
+      end
+
+      #puts info
+
       DATA_HASH["sections"][attr].each do |key, value|
         fragment.font_size = DATA_HASH["sections"][attr]["font-size"].to_i
         case key
