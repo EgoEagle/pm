@@ -1,6 +1,7 @@
 require "prawn"
 require "json"
 require "date"
+require "prawn/table"
 
 require_relative "page_fragment"
 
@@ -61,6 +62,8 @@ end
 DATA_HASH = JSON.parse(file)
 COLOR = DATA_HASH["template"]["color"]
 BACKGROUND = DATA_HASH["template"]["background_color"]
+
+puts ATTRIBUTES[:info][:entries].count
 
 #json object
 #into Ruby Hash
