@@ -40,14 +40,18 @@ ATTRIBUTES = {
         certificate_name: "Scaffold Builder V3",
         credential_type: "Knowledge Verified",
         wallet_card: "X",
+        silver_card: "",
+        gold_card: "",
       },
 
       entry2: {
         date_scored: "10/10/2022",
-        certificate_type: "Certificate",
+        certificate_type: "Wallet Card",
         certificate_name: "Scaffold Builder V3",
         credential_type: "Knowledge Verified",
-        wallet_card: "X",
+        blue_card: "X",
+        silver_card: "",
+        gold_card: "",
       },
     },
   },
@@ -153,19 +157,17 @@ class Renderer
 
   def generate_table(pdf,info)
     header_text = [[{content: "Result Id", colspan: 9}]]
-    tb = [["NCCER Card #", "Name", "Date Scored", "Certification Type", "Credential Type","Certification Name","Blue Card","Silver Card","Gold Card"],
-      [info[0], info[1], info[2], info[3], info[4], info[5], info[6]],
-      ["d1", "d2", "d3", "d4", "d2", "d3", "d4", "d2", "d2"],
-      ["d1", "d2", "d3", "d4", "d2", "d3", "d4", "d2", "d2"]]
+      Array displayArray = Array.new
+      displayArray.push(["NCCER Card #", "Name", "Date Scored", "Certification Type", "Credential Type","Certification Name","Blue Card","Silver Card","Gold Card"])
+      info.each_slice(9) do |a| 
+        displayArray.push(a)
+      end
 
-  
-
-      info.each_slice(2) { |a| p a }
-    # pdf.bounding_box([0, 300], width: 720, height: 600) do  
-    #   pdf.table(header_text + info, header: 2)do
-    #     row(0).font_style = :bold
-    #   end
-    # end
+    pdf.bounding_box([0, 300], width: 720, height: 600) do  
+      pdf.table(header_text + displayArray, header: 2)do
+        row(0).font_style = :bold
+      end
+    end
 
   end
 
