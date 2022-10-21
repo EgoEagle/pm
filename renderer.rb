@@ -6,6 +6,7 @@ require "prawn/table"
 require_relative "page_fragment"
 
 time = Time.new
+$info
 
 ATTRIBUTES = {
   name: "Tony Lin",
@@ -141,7 +142,7 @@ class Renderer
     Prawn::Document.generate(filename, page_layout: :landscape) do |pdf|
       # pdf.stroke_axis
       set_bg_color(pdf)
-      generate_table(pdf)
+      generate_table(pdf,$info)
 
       self.page_fragments.each do |fragment|
         render_fragment(pdf, fragment)
@@ -150,18 +151,21 @@ class Renderer
   end
 
 
-  def generate_table(pdf)
+  def generate_table(pdf,info)
     header_text = [[{content: "Result Id", colspan: 9}]]
     tb = [["NCCER Card #", "Name", "Date Scored", "Certification Type", "Credential Type","Certification Name","Blue Card","Silver Card","Gold Card"],
-      ["d1", "d2", "d3", "d4", "d2", "d3", "d4", "d2", "d2"],
+      [info[0], info[1], info[2], info[3], info[4], info[5], info[6]],
       ["d1", "d2", "d3", "d4", "d2", "d3", "d4", "d2", "d2"],
       ["d1", "d2", "d3", "d4", "d2", "d3", "d4", "d2", "d2"]]
-    
-    pdf.bounding_box([0, 300], width: 900, height: 600) do  
-      pdf.table(header_text + tb, header: 2)do
-        row(0).font_style = :bold
-      end
-    end
+
+  
+
+      info.each_slice(2) { |a| p a }
+    # pdf.bounding_box([0, 300], width: 720, height: 600) do  
+    #   pdf.table(header_text + info, header: 2)do
+    #     row(0).font_style = :bold
+    #   end
+    # end
 
   end
 
@@ -219,15 +223,17 @@ def render_batch_report(renderer)
       y -= spacing
 
     when "info"
-      Array info = Array.new
-      info.push(ATTRIBUTES[:info][:card_number],ATTRIBUTES[:info][:name])
+      $info = Array.new
+      count = 0
       ATTRIBUTES[:info][:entries].each_key do |attr|
         ATTRIBUTES[:info][:entries][attr.to_sym].each do |key,value|
-          puts value
+          if count % 7 == 0
+            $info.push(ATTRIBUTES[:info][:card_number],ATTRIBUTES[:info][:name])
+          end
+          $info.push(value)
+          count += 1
         end
       end
-
-      #puts info
 
       DATA_HASH["sections"][attr].each do |key, value|
         fragment.font_size = DATA_HASH["sections"][attr]["font-size"].to_i
