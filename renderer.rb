@@ -7,12 +7,13 @@ require_relative "page_fragment"
 
 time = Time.new
 $info
+$table = false;
 
 ATTRIBUTES = {
   name: "Tony Lin",
   certificate: "Carpentry Level One",
   completion_date: "2022-10-10",
-  type: "ar_batch_report",
+  type: "pv_batch_report",
   report_id: "34512",
 
   assessment_center: {
@@ -63,11 +64,17 @@ when "certified"
   DATA_HASH = JSON.parse(file)
   COLOR = DATA_HASH["template"]["color"]
   BACKGROUND = DATA_HASH["template"]["background_color"]
-when "ar_batch_report"
-  file = File.read("ar_template.json")
+when "ar_batch_report","pv_batch_report"
+  puts ATTRIBUTES[:type]
+  if ATTRIBUTES[:type] == "ar_batch_report"
+    file = File.read("ar_template.json")
+  elsif ATTRIBUTES[:type] == "pv_batch_report"
+    file = File.read("pv_template.json")
+  end
   DATA_HASH = JSON.parse(file)
   COLOR = DATA_HASH["template"]["color"]
   BACKGROUND = DATA_HASH["template"]["background_color"]
+  $table = true
 else
   puts "Non Existent"
   BACKGROUND = "FFFFFF"
@@ -146,8 +153,9 @@ class Renderer
     Prawn::Document.generate(filename, page_layout: :landscape) do |pdf|
       # pdf.stroke_axis
       set_bg_color(pdf)
-      generate_table(pdf,$info)
-
+      if $table
+        generate_table(pdf,$info)
+      end
       self.page_fragments.each do |fragment|
         render_fragment(pdf, fragment)
       end
@@ -156,7 +164,7 @@ class Renderer
 
 
   def generate_table(pdf,info)
-    header_text = [[{content: "Result Id", colspan: 9}]]
+    header_text = [[{content: "Result Id: #{ATTRIBUTES[:report_id]}", colspan: 9}]]
       Array displayArray = Array.new
       displayArray.push(["NCCER Card #", "Name", "Date Scored", "Certification Type", "Credential Type","Certification Name","Blue Card","Silver Card","Gold Card"])
       info.each_slice(9) do |a| 
@@ -295,7 +303,7 @@ renderer = Renderer.new
 case ATTRIBUTES[:type]
 when "certified"
   render_certificate(renderer)
-when "ar_batch_report"
+when "ar_batch_report" , "pv_batch_report"
   render_batch_report(renderer)
 else
   puts "Error No Template"
