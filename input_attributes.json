@@ -1,0 +1,50 @@
+{
+     "name": "Tony Lin",
+     "certificate": "Carpentry Level One",
+     "completion_date": "2022-10-10",
+     "type": "ar_batch_report",
+     "report_id": "34512",
+   
+     "assessment_center": {
+          "organization_name": "Triangle Rescue Standby Services LLC",
+          "organization_id": "98373",
+          "organization_address": "3875 I-10 East, Orange, TX 77630 US"
+     },
+   
+     "assessment_site": {
+          "organization_name": "Triangle Rescue Standby Services LLC",
+          "organization_id": "98373",
+          "organization_address": "3875 I-10 East, Orange, TX 77630 US"
+     },
+   
+
+     
+     "info": {
+          "direct": "Yes",
+          "date_printed": "10/26/2022",
+          "card_number": "98232",
+          "name": "Tony Lin",
+   
+          "entries": {
+               "entry1": {
+                    "date_scored": "10/10/2022",
+                    "certificate_type": "Certificate",
+                    "certificate_name": "Scaffold Builder V3",
+                    "credential_type": "Knowledge Verified",
+                    "wallet_card": "X",
+                    "silver_card": "",
+                    "gold_card": ""
+         },
+   
+         "entry2": {
+          "date_scored": "10/10/2022",
+          "certificate_type": "Wallet Card",
+          "certificate_name": "Scaffold Builder V3",
+          "credential_type": "Knowledge Verified",
+          "blue_card": "X",
+          "silver_card": "",
+          "gold_card": ""
+         }
+       }
+     }
+}

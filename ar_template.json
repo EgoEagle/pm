@@ -6,7 +6,8 @@
     "color" : "000000",
     "background_color": "FFF275",
     "font-size": "20pt",
-    "font-family": "Courier-Bold"
+    "font-family": "Courier-Bold",
+    "type": "ar_batch_report"
   },
   "defaults": {
     "font-family": "Courier",

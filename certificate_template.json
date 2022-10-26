@@ -3,7 +3,9 @@
        "title": "2023 Craft Certificate",
        "category": "certificates",
        "page-size": "400 900",
-       "color" : "FFFFFF"
+       "color" : "FFFFFF",
+       "type": "certificate"
+
      },
    
      "defaults": {

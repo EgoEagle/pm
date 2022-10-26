@@ -9,84 +9,16 @@ time = Time.new
 $info
 $table = false
 
-ATTRIBUTES = {
-  name: "Tony Lin",
-  certificate: "Carpentry Level One",
-  completion_date: "2022-10-10",
-  type: "ar_batch_report",
-  report_id: "34512",
-
-  assessment_center: {
-    organization_name: "Triangle Rescue Standby Services LLC",
-    organization_id: "98373",
-    organization_address: "3875 I-10 East, Orange, TX 77630 US",
-  },
-
-  assessment_site: {
-    organization_name: "Triangle Rescue Standby Services LLC",
-    organization_id: "98373",
-    organization_address: "3875 I-10 East, Orange, TX 77630 US",
-  },
-
-  info: {
-    direct: "Yes",
-    date_printed: time.strftime("%m/%d/%Y"),
-    card_number: "98232",
-    name: "Tony Lin",
-
-    entries: {
-      entry1: {
-        date_scored: "10/10/2022",
-        certificate_type: "Certificate",
-        certificate_name: "Scaffold Builder V3",
-        credential_type: "Knowledge Verified",
-        wallet_card: "X",
-        silver_card: "",
-        gold_card: "",
-      },
-
-      entry2: {
-        date_scored: "10/10/2022",
-        certificate_type: "Wallet Card",
-        certificate_name: "Scaffold Builder V3",
-        credential_type: "Knowledge Verified",
-        blue_card: "X",
-        silver_card: "",
-        gold_card: "",
-      },
-    },
-  },
-}
-
-case ATTRIBUTES[:type]
-when "certified"
-  file = File.read("certificate_template.json")
-  DATA_HASH = JSON.parse(file)
-  COLOR = DATA_HASH["template"]["color"]
-  BACKGROUND = DATA_HASH["template"]["background_color"]
-when "ar_batch_report", "pv_batch_report"
-  if ATTRIBUTES[:type] == "ar_batch_report"
-    file = File.read("ar_template.json")
-  elsif ATTRIBUTES[:type] == "pv_batch_report"
-    file = File.read("pv_template.json")
-  end
-  DATA_HASH = JSON.parse(file)
-  COLOR = DATA_HASH["template"]["color"]
-  BACKGROUND = DATA_HASH["template"]["background_color"]
-  $table = true
-else
-  puts "Non Existent"
-  BACKGROUND = "FFFFFF"
-end
-
-
+#time.strftime("%m/%d/%Y"),
 #json object
 #into Ruby Hash
 
 class Renderer
-  attr_accessor :page_fragments
+  attr_accessor :page_fragments , :template, :attributes
 
-  def initialize(options = {})
+  def initialize(options = {},template,attributes)
+    @template = template
+    @attributes = attributes
     @options = options
     @page_fragments = Array.new
     @draw_boxes = false
@@ -160,7 +92,7 @@ class Renderer
   end
 
   def generate_table(pdf, info)
-    header_text = [[{ content: "Result Id: #{ATTRIBUTES[:report_id]}", colspan: 9 }]]
+    header_text = [[{ content: "Result Id: #{attributes["report_id"]}", colspan: 9 }]]
     Array displayArray = Array.new
     displayArray.push(["NCCER Card #", "Name", "Date Scored", "Certification Type", "Credential Type", "Certification Name", "Blue Card", "Silver Card", "Gold Card"])
     info.each_slice(9) do |a|
@@ -190,61 +122,61 @@ class Renderer
 
   def render_batch_report
     fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
-    fragment.font = DATA_HASH["template"]["font-family"]
-    fragment.font_size = DATA_HASH["template"]["font-size"].to_i
-    fragment.content = DATA_HASH["template"]["title"]
+    fragment.font = @template[:template][:font_family]
+    fragment.font_size = @template[:template][:font_size].to_i
+    fragment.content = @template[:template][:title]
     self.add_fragment fragment
     spacing = 0
     y = fragment.width / 2
 
-    DATA_HASH["sections"].each_key do |attr|
+    @template[:sections].each_key do |attr|
       fragment = PageFragment.new
-      fragment.font = DATA_HASH["defaults"]["font-family"]
-      fragment.y = y + DATA_HASH["defaults"]["height_spacing"].to_i
-      fragment.width = DATA_HASH["defaults"]["width"].to_i
-      fragment.height = DATA_HASH["defaults"]["height"].to_i
-      spacing = DATA_HASH["sections"][attr]["line-spacing".to_s].to_i
+      fragment.font = @template["defaults".to_sym]["font-family".to_sym]
+      fragment.y = y + @template["defaults".to_sym]["height_spacing".to_sym].to_i
+      fragment.width = @template["defaults".to_sym]["width".to_sym].to_i
+      fragment.height = @template["defaults".to_sym]["height".to_sym].to_i
+      spacing = @template["sections".to_sym][attr]["line-spacing".to_sym].to_i
 
       case attr
       when "report_id"
-        fragment.font_size = DATA_HASH["sections"][attr]["font-size"].to_i
-        fragment.content = DATA_HASH["sections"][attr]["report_id"]
-        fragment.content << ATTRIBUTES[:report_id]
+        fragment.font_size = @template["sections".to_sym][attr]["font-size".to_sym].to_i
+        fragment.content = @template["sections".to_sym][attr]["report_id".to_sym]
+        fragment.content << @attributes["report_id".to_sym]
         y -= spacing #space every each section
       when "assessment_center", "assessment_site"
-        DATA_HASH["sections"][attr].each do |key, value|
-          fragment.font_size = DATA_HASH["sections"][attr]["font-size"].to_i
+        @template["sections"][attr].each do |key, value|
+          fragment.font_size = @template["sections"][attr]["font-size"].to_i
           if value.match /\{\{(.*)\}\}/ #ex grabs {{name}}
             attribute = value.tr("{}", "")  #removes {{}} = > name
-            fragment.content << ATTRIBUTES[attr.to_sym][attribute.to_sym] << "\n" #this works
+            fragment.content << @attributes[attr.to_s][attribute.to_s] << "\n" #this works
           elsif key == "organization_name" || key == "organization_id"
-            fragment.content << DATA_HASH["sections"][attr.to_s][key.to_s]
-            fragment.content << ATTRIBUTES[attr.to_sym][key.to_sym] << "\n"
+            fragment.content << @template["sections"][attr.to_s][key.to_s]
+            fragment.content << @attributes[attr.to_s][key.to_sym] << "\n"
           end
         end
         y -= spacing
       when "info"
         $info = Array.new
         count = 0
-        ATTRIBUTES[:info][:entries].each_key do |attr|
-          ATTRIBUTES[:info][:entries][attr.to_sym].each do |key, value|
+        @attributes["info"]["entries"].each_key do |attr|
+          @attributes["info"]["entries"][attr.to_s].each do |key, value|
             if count % 7 == 0
-              $info.push(ATTRIBUTES[:info][:card_number], ATTRIBUTES[:info][:name])
+              $info.push(@attributes["info"]["cardnumber"], @attributes["info"]["name"])
             end
             $info.push(value)
             count += 1
           end
         end
 
-        DATA_HASH["sections"][attr].each do |key, value|
-          fragment.font_size = DATA_HASH["sections"][attr]["font-size"].to_i
+        @template["sections"][attr].each do |key, value|
+          fragment.font_size = @template["sections"][attr]["font-size"].to_i
           case key
           when "direct"
-            fragment.content << DATA_HASH["sections"][attr.to_s][key.to_s]
-            fragment.content << ATTRIBUTES[attr.to_sym][key.to_sym] << "\n"
+            fragment.content << @template["sections"][attr.to_s][key.to_s]
+            fragment.content << @attributes[attr.to_s][key.to_s] << "\n"
           when "date_printed"
-            fragment.content << DATA_HASH["sections"][attr.to_s][key.to_s]
-            fragment.content << ATTRIBUTES[attr.to_sym][key.to_sym] << "\n"
+            fragment.content << @template["sections"][attr.to_s][key.to_s]
+            fragment.content << @attributes[attr.to_s][key.to_s] << "\n"
           end
         end
       end
@@ -257,30 +189,29 @@ class Renderer
     fragment.image_file = "images/certificate-of-merit.jpg"
     self.add_fragment fragment
 
-    DATA_HASH["sections"].each_key do |attr|
+    @template[:sections].each_key do |attr|
       fragment = PageFragment.new
-      fragment.font = DATA_HASH["defaults"]["font-family"]
-      DATA_HASH["sections"][attr].each do |key, value|
-        #puts "new #{key}  #{value}"
-        if key == "font-size"
+      fragment.font = @template[:defaults][:font_family]
+      @template[:sections][attr].each do |key, value|
+        if key == "font_size".to_sym
           fragment.font_size = value.to_i
-        elsif key == "location"
+        elsif key == "location".to_sym
           coordinates = value.split(" ")
           fragment.x = coordinates[0].to_i
           fragment.y = coordinates[1].to_i
           fragment.width = coordinates[2].to_i
           fragment.height = coordinates[3].to_i
-        elsif key == "text"
+        elsif key == "text".to_sym
           if value.match /\{\{(.*)\}\}/ #ex grabs {{name}}
             attribute = value.tr("{}", "")  #removes {{}} = > name
             attribute = attribute.to_sym
-            fragment.content = ATTRIBUTES[attribute] #this works
+            fragment.content = @attributes[attribute] #this works
           else
             fragment.content = value
           end
-        elsif key == "image"
+        elsif key == "image".to_sym
           fragment.image_file = "images/signature.png"
-        elsif key == "style"
+        elsif key == "style".to_sym
           fragment.style = value.to_sym
         end
       end
@@ -289,13 +220,131 @@ class Renderer
   end
 end
 
-renderer = Renderer.new
-case ATTRIBUTES[:type]
-when "certified"
+
+attributes = {
+  "name": "Tony Lin",
+  "certificate": "Carpentry Level One",
+  "completion_date": "2022-10-10",
+  "type": "ar_batch_report",
+  "report_id": "34512",
+
+  "assessment_center": {
+       "organization_name": "Triangle Rescue Standby Services LLC",
+       "organization_id": "98373",
+       "organization_address": "3875 I-10 East, Orange, TX 77630 US"
+  },
+
+  "assessment_site": {
+       "organization_name": "Triangle Rescue Standby Services LLC",
+       "organization_id": "98373",
+       "organization_address": "3875 I-10 East, Orange, TX 77630 US"
+  },
+
+
+  
+  "info": {
+       "direct": "Yes",
+       "date_printed": "10/26/2022",
+       "card_number": "98232",
+       "name": "Tony Lin",
+
+       "entries": {
+            "entry1": {
+                 "date_scored": "10/10/2022",
+                 "certificate_type": "Certificate",
+                 "certificate_name": "Scaffold Builder V3",
+                 "credential_type": "Knowledge Verified",
+                 "wallet_card": "X",
+                 "silver_card": "",
+                 "gold_card": ""
+      },
+
+      "entry2": {
+       "date_scored": "10/10/2022",
+       "certificate_type": "Wallet Card",
+       "certificate_name": "Scaffold Builder V3",
+       "credential_type": "Knowledge Verified",
+       "blue_card": "X",
+       "silver_card": "",
+       "gold_card": ""
+      }
+    }
+  }
+}
+
+
+template = {
+  "template": {
+    "title": "2023 Craft Certificate",
+    "category": "certificates",
+    "page_size": "400 900",
+    "type": "certificate",
+    "color": "FFFFFF"
+  },
+
+  "defaults": {
+    "font_family": "Times-Roman",
+    "font_size": "12pt"
+  },
+
+  "sections": {
+    "header1": {
+      "font_size": "20pt",
+      "location": "70 360 400 30",
+      "text": "NCCER Presents",
+      "style": "italic"
+    },
+    "header2": {
+      "font_size": "20pt",
+      "location": "240 360 400 70",
+      "text": "2023 Craft Certificate",
+      "style": "italic"
+    },
+    "name": {
+      "font_size": "40pt",
+      "font_style": "italic",
+      "location": "160 280 400 110",
+      "text": "{{name}}",
+      "style": "italic"
+    },
+
+    "presented-header": {
+      "location": "150 150 90 220",
+      "text": "Presented On"
+    },
+    "presented-date": {
+      "location": "140 130 120 250",
+      "text": "{{completion_date}}"
+    },
+
+    "signature": {
+      "location": "450 150 125 120",
+      "image": "images/certificates/boyd_signature.png"
+    }
+  }
+}
+
+
+renderer = Renderer.new(template,attributes)
+
+#puts renderer.template[:template][:title]
+case renderer.template["template".to_sym]["type".to_sym]
+
+when "certificate"
+  COLOR = template["template".to_sym]["color".to_sym]
+  BACKGROUND = template[:template][:background_color]
   renderer.render_certificate
+
 when "ar_batch_report", "pv_batch_report"
+  COLOR = template["template".to_sym]["color".to_sym]
+  BACKGROUND = template["template".to_sym]["background_color".to_sym]
+  #$table = true
+  puts $table
   renderer.render_batch_report
+
 else
-  puts "Error No Template"
+  puts "Non Existent"
+  BACKGROUND = "FFFFFF"
 end
+
 renderer.render
