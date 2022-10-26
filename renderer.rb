@@ -7,13 +7,13 @@ require_relative "page_fragment"
 
 time = Time.new
 $info
-$table = false;
+$table = false
 
 ATTRIBUTES = {
   name: "Tony Lin",
   certificate: "Carpentry Level One",
   completion_date: "2022-10-10",
-  type: "pv_batch_report",
+  type: "ar_batch_report",
   report_id: "34512",
 
   assessment_center: {
@@ -64,8 +64,7 @@ when "certified"
   DATA_HASH = JSON.parse(file)
   COLOR = DATA_HASH["template"]["color"]
   BACKGROUND = DATA_HASH["template"]["background_color"]
-when "ar_batch_report","pv_batch_report"
-  puts ATTRIBUTES[:type]
+when "ar_batch_report", "pv_batch_report"
   if ATTRIBUTES[:type] == "ar_batch_report"
     file = File.read("ar_template.json")
   elsif ATTRIBUTES[:type] == "pv_batch_report"
@@ -80,8 +79,6 @@ else
   BACKGROUND = "FFFFFF"
 end
 
-
-#puts ATTRIBUTES[:info][:entries].count
 
 #json object
 #into Ruby Hash
@@ -154,7 +151,7 @@ class Renderer
       # pdf.stroke_axis
       set_bg_color(pdf)
       if $table
-        generate_table(pdf,$info)
+        generate_table(pdf, $info)
       end
       self.page_fragments.each do |fragment|
         render_fragment(pdf, fragment)
@@ -162,21 +159,19 @@ class Renderer
     end
   end
 
+  def generate_table(pdf, info)
+    header_text = [[{ content: "Result Id: #{ATTRIBUTES[:report_id]}", colspan: 9 }]]
+    Array displayArray = Array.new
+    displayArray.push(["NCCER Card #", "Name", "Date Scored", "Certification Type", "Credential Type", "Certification Name", "Blue Card", "Silver Card", "Gold Card"])
+    info.each_slice(9) do |a|
+      displayArray.push(a)
+    end
 
-  def generate_table(pdf,info)
-    header_text = [[{content: "Result Id: #{ATTRIBUTES[:report_id]}", colspan: 9}]]
-      Array displayArray = Array.new
-      displayArray.push(["NCCER Card #", "Name", "Date Scored", "Certification Type", "Credential Type","Certification Name","Blue Card","Silver Card","Gold Card"])
-      info.each_slice(9) do |a| 
-        displayArray.push(a)
-      end
-
-    pdf.bounding_box([0, 300], width: 720, height: 600) do  
-      pdf.table(header_text + displayArray, header: 2)do
+    pdf.bounding_box([0, 300], width: 720, height: 600) do
+      pdf.table(header_text + displayArray, header: 2) do
         row(0).font_style = :bold
       end
     end
-
   end
 
   def set_bg_color(pdf)
@@ -192,119 +187,114 @@ class Renderer
   def filename
     "test.pdf"
   end
-end
 
-def render_batch_report(renderer)
-  fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
-  fragment.font = DATA_HASH["template"]["font-family"]
-  fragment.font_size = DATA_HASH["template"]["font-size"].to_i
-  fragment.content = DATA_HASH["template"]["title"]
-  renderer.add_fragment fragment
-  spacing = 0
-  y = fragment.width / 2
+  def render_batch_report
+    fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
+    fragment.font = DATA_HASH["template"]["font-family"]
+    fragment.font_size = DATA_HASH["template"]["font-size"].to_i
+    fragment.content = DATA_HASH["template"]["title"]
+    self.add_fragment fragment
+    spacing = 0
+    y = fragment.width / 2
 
-  DATA_HASH["sections"].each_key do |attr|
-    fragment = PageFragment.new
-    fragment.font = DATA_HASH["defaults"]["font-family"]
-    fragment.y = y + DATA_HASH["defaults"]["height_spacing"].to_i
-    fragment.width = DATA_HASH["defaults"]["width"].to_i
-    fragment.height = DATA_HASH["defaults"]["height"].to_i
-    spacing = DATA_HASH["sections"][attr]["line-spacing".to_s].to_i
+    DATA_HASH["sections"].each_key do |attr|
+      fragment = PageFragment.new
+      fragment.font = DATA_HASH["defaults"]["font-family"]
+      fragment.y = y + DATA_HASH["defaults"]["height_spacing"].to_i
+      fragment.width = DATA_HASH["defaults"]["width"].to_i
+      fragment.height = DATA_HASH["defaults"]["height"].to_i
+      spacing = DATA_HASH["sections"][attr]["line-spacing".to_s].to_i
 
-    case attr
-    when "report_id"
-      fragment.font_size = DATA_HASH["sections"][attr]["font-size"].to_i
-      fragment.content = DATA_HASH["sections"][attr]["report_id"]
-      fragment.content << ATTRIBUTES[:report_id]
-      y -= spacing #space every each section
-
-    when "assessment_center", "assessment_site"
-      DATA_HASH["sections"][attr].each do |key, value|
-  
+      case attr
+      when "report_id"
         fragment.font_size = DATA_HASH["sections"][attr]["font-size"].to_i
-        if value.match /\{\{(.*)\}\}/ #ex grabs {{name}}
-          attribute = value.tr("{}", "")  #removes {{}} = > name
-          fragment.content << ATTRIBUTES[attr.to_sym][attribute.to_sym] << "\n" #this works
-        elsif key == "organization_name" || key == "organization_id"
-          fragment.content << DATA_HASH["sections"][attr.to_s][key.to_s]
-          fragment.content << ATTRIBUTES[attr.to_sym][key.to_sym] << "\n"
-        end
-      end
-      y -= spacing
-
-    when "info"
-      $info = Array.new
-      count = 0
-      ATTRIBUTES[:info][:entries].each_key do |attr|
-        ATTRIBUTES[:info][:entries][attr.to_sym].each do |key,value|
-          if count % 7 == 0
-            $info.push(ATTRIBUTES[:info][:card_number],ATTRIBUTES[:info][:name])
+        fragment.content = DATA_HASH["sections"][attr]["report_id"]
+        fragment.content << ATTRIBUTES[:report_id]
+        y -= spacing #space every each section
+      when "assessment_center", "assessment_site"
+        DATA_HASH["sections"][attr].each do |key, value|
+          fragment.font_size = DATA_HASH["sections"][attr]["font-size"].to_i
+          if value.match /\{\{(.*)\}\}/ #ex grabs {{name}}
+            attribute = value.tr("{}", "")  #removes {{}} = > name
+            fragment.content << ATTRIBUTES[attr.to_sym][attribute.to_sym] << "\n" #this works
+          elsif key == "organization_name" || key == "organization_id"
+            fragment.content << DATA_HASH["sections"][attr.to_s][key.to_s]
+            fragment.content << ATTRIBUTES[attr.to_sym][key.to_sym] << "\n"
           end
-          $info.push(value)
-          count += 1
         end
-      end
-
-      DATA_HASH["sections"][attr].each do |key, value|
-        fragment.font_size = DATA_HASH["sections"][attr]["font-size"].to_i
-        case key
-        when "direct"
-          fragment.content << DATA_HASH["sections"][attr.to_s][key.to_s]
-          fragment.content << ATTRIBUTES[attr.to_sym][key.to_sym] << "\n"
-
-        when "date_printed"
-          fragment.content << DATA_HASH["sections"][attr.to_s][key.to_s]
-          fragment.content << ATTRIBUTES[attr.to_sym][key.to_sym] << "\n"
+        y -= spacing
+      when "info"
+        $info = Array.new
+        count = 0
+        ATTRIBUTES[:info][:entries].each_key do |attr|
+          ATTRIBUTES[:info][:entries][attr.to_sym].each do |key, value|
+            if count % 7 == 0
+              $info.push(ATTRIBUTES[:info][:card_number], ATTRIBUTES[:info][:name])
+            end
+            $info.push(value)
+            count += 1
+          end
         end
 
+        DATA_HASH["sections"][attr].each do |key, value|
+          fragment.font_size = DATA_HASH["sections"][attr]["font-size"].to_i
+          case key
+          when "direct"
+            fragment.content << DATA_HASH["sections"][attr.to_s][key.to_s]
+            fragment.content << ATTRIBUTES[attr.to_sym][key.to_sym] << "\n"
+          when "date_printed"
+            fragment.content << DATA_HASH["sections"][attr.to_s][key.to_s]
+            fragment.content << ATTRIBUTES[attr.to_sym][key.to_sym] << "\n"
+          end
+        end
       end
+      self.add_fragment fragment
     end
-    renderer.add_fragment fragment
   end
-end
 
-def render_certificate(renderer)
-  fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
-  fragment.image_file = "images/certificate-of-merit.jpg"
-  renderer.add_fragment fragment
+  def render_certificate
+    fragment = PageFragment.new x: 0, y: 540, width: 720, height: 540, name: "page"
+    fragment.image_file = "images/certificate-of-merit.jpg"
+    self.add_fragment fragment
 
-  DATA_HASH["sections"].each_key do |attr|
-    fragment = PageFragment.new
-    fragment.font = DATA_HASH["defaults"]["font-family"]
-    DATA_HASH["sections"][attr].each do |key, value|
-      #puts "new #{key}  #{value}"
-      if key == "font-size"
-        fragment.font_size = value.to_i
-      elsif key == "location"
-        coordinates = value.split(" ")
-        fragment.x = coordinates[0].to_i
-        fragment.y = coordinates[1].to_i
-        fragment.width = coordinates[2].to_i
-        fragment.height = coordinates[3].to_i
-      elsif key == "text"
-        if value.match /\{\{(.*)\}\}/ #ex grabs {{name}}
-          attribute = value.tr("{}", "")  #removes {{}} = > name
-          attribute = attribute.to_sym
-          fragment.content = ATTRIBUTES[attribute] #this works
-        else
-          fragment.content = value
+    DATA_HASH["sections"].each_key do |attr|
+      fragment = PageFragment.new
+      fragment.font = DATA_HASH["defaults"]["font-family"]
+      DATA_HASH["sections"][attr].each do |key, value|
+        #puts "new #{key}  #{value}"
+        if key == "font-size"
+          fragment.font_size = value.to_i
+        elsif key == "location"
+          coordinates = value.split(" ")
+          fragment.x = coordinates[0].to_i
+          fragment.y = coordinates[1].to_i
+          fragment.width = coordinates[2].to_i
+          fragment.height = coordinates[3].to_i
+        elsif key == "text"
+          if value.match /\{\{(.*)\}\}/ #ex grabs {{name}}
+            attribute = value.tr("{}", "")  #removes {{}} = > name
+            attribute = attribute.to_sym
+            fragment.content = ATTRIBUTES[attribute] #this works
+          else
+            fragment.content = value
+          end
+        elsif key == "image"
+          fragment.image_file = "images/signature.png"
+        elsif key == "style"
+          fragment.style = value.to_sym
         end
-      elsif key == "image"
-        fragment.image_file = "images/signature.png"
-      elsif key == "style"
-        fragment.style = value.to_sym
       end
+      self.add_fragment fragment
     end
-    renderer.add_fragment fragment
   end
 end
 
 renderer = Renderer.new
 case ATTRIBUTES[:type]
 when "certified"
-  render_certificate(renderer)
-when "ar_batch_report" , "pv_batch_report"
-  render_batch_report(renderer)
+  renderer.render_certificate
+when "ar_batch_report", "pv_batch_report"
+  renderer.render_batch_report
 else
   puts "Error No Template"
 end
