@@ -14,9 +14,9 @@ $table = false
 #into Ruby Hash
 
 class Renderer
-  attr_accessor :page_fragments , :template, :attributes
+  attr_accessor :page_fragments, :template, :attributes
 
-  def initialize(options = {},template,attributes)
+  def initialize(options = {}, template, attributes)
     @template = template
     @attributes = attributes
     @options = options
@@ -92,7 +92,7 @@ class Renderer
   end
 
   def generate_table(pdf, info)
-    header_text = [[{ content: "Result Id: #{attributes["report_id"]}", colspan: 9 }]]
+    header_text = [[{ content: "Result Id: #{attributes[:report_id]}", colspan: 9 }]]
     Array displayArray = Array.new
     displayArray.push(["NCCER Card #", "Name", "Date Scored", "Certification Type", "Credential Type", "Certification Name", "Blue Card", "Silver Card", "Gold Card"])
     info.each_slice(9) do |a|
@@ -131,52 +131,52 @@ class Renderer
 
     @template[:sections].each_key do |attr|
       fragment = PageFragment.new
-      fragment.font = @template["defaults".to_sym]["font-family".to_sym]
-      fragment.y = y + @template["defaults".to_sym]["height_spacing".to_sym].to_i
-      fragment.width = @template["defaults".to_sym]["width".to_sym].to_i
-      fragment.height = @template["defaults".to_sym]["height".to_sym].to_i
-      spacing = @template["sections".to_sym][attr]["line-spacing".to_sym].to_i
+      fragment.font = @template[:defaults][:font_family]
+      fragment.y = y + @template[:defaults][:height_spacing].to_i
+      fragment.width = @template[:defaults][:width].to_i
+      fragment.height = @template[:defaults][:height].to_i
+      spacing = @template[:sections][attr][:line_spacing].to_i
 
       case attr
-      when "report_id"
-        fragment.font_size = @template["sections".to_sym][attr]["font-size".to_sym].to_i
-        fragment.content = @template["sections".to_sym][attr]["report_id".to_sym]
-        fragment.content << @attributes["report_id".to_sym]
+      when "report_id".to_sym
+        fragment.font_size = @template[:sections][attr][:font_size].to_i
+        fragment.content = @template[:sections][attr][:report_id]
+        fragment.content << @attributes[:report_id]
         y -= spacing #space every each section
-      when "assessment_center", "assessment_site"
-        @template["sections"][attr].each do |key, value|
-          fragment.font_size = @template["sections"][attr]["font-size"].to_i
+      when "assessment_center".to_sym, "assessment_site".to_sym
+        @template[:sections][attr].each do |key, value|
+          fragment.font_size = @template[:sections][attr]["font-size"].to_i
           if value.match /\{\{(.*)\}\}/ #ex grabs {{name}}
             attribute = value.tr("{}", "")  #removes {{}} = > name
-            fragment.content << @attributes[attr.to_s][attribute.to_s] << "\n" #this works
-          elsif key == "organization_name" || key == "organization_id"
-            fragment.content << @template["sections"][attr.to_s][key.to_s]
-            fragment.content << @attributes[attr.to_s][key.to_sym] << "\n"
+            fragment.content << @attributes[attr.to_sym][attribute.to_sym] << "\n" #this works
+          elsif key == "organization_name".to_sym || key == "organization_id".to_sym
+            fragment.content << @template[:sections][attr][key]
+            fragment.content << @attributes[attr][key.to_sym] << "\n"
           end
         end
         y -= spacing
-      when "info"
+      when "info".to_sym
         $info = Array.new
         count = 0
-        @attributes["info"]["entries"].each_key do |attr|
-          @attributes["info"]["entries"][attr.to_s].each do |key, value|
+        @attributes[:info][:entries].each_key do |attr|
+          @attributes[:info][:entries][attr].each do |key, value|
             if count % 7 == 0
-              $info.push(@attributes["info"]["cardnumber"], @attributes["info"]["name"])
+              $info.push(@attributes[:info][:card_number], @attributes[:info][:name])
             end
             $info.push(value)
             count += 1
           end
         end
 
-        @template["sections"][attr].each do |key, value|
-          fragment.font_size = @template["sections"][attr]["font-size"].to_i
+        @template[:sections][attr].each do |key, value|
+          fragment.font_size = @template[:sections][attr][:font_size].to_i
           case key
-          when "direct"
-            fragment.content << @template["sections"][attr.to_s][key.to_s]
-            fragment.content << @attributes[attr.to_s][key.to_s] << "\n"
-          when "date_printed"
-            fragment.content << @template["sections"][attr.to_s][key.to_s]
-            fragment.content << @attributes[attr.to_s][key.to_s] << "\n"
+          when "direct".to_sym
+            fragment.content << @template[:sections][attr][key]
+            fragment.content << @attributes[attr][key] << "\n"
+          when "date_printed".to_sym
+            fragment.content << @template[:sections][attr][key]
+            fragment.content << @attributes[attr][key] << "\n"
           end
         end
       end
@@ -220,7 +220,6 @@ class Renderer
   end
 end
 
-
 attributes = {
   "name": "Tony Lin",
   "certificate": "Carpentry Level One",
@@ -229,119 +228,168 @@ attributes = {
   "report_id": "34512",
 
   "assessment_center": {
-       "organization_name": "Triangle Rescue Standby Services LLC",
-       "organization_id": "98373",
-       "organization_address": "3875 I-10 East, Orange, TX 77630 US"
+    "organization_name": "Triangle Rescue Standby Services LLC",
+    "organization_id": "98373",
+    "organization_address": "3875 I-10 East, Orange, TX 77630 US",
   },
 
   "assessment_site": {
-       "organization_name": "Triangle Rescue Standby Services LLC",
-       "organization_id": "98373",
-       "organization_address": "3875 I-10 East, Orange, TX 77630 US"
+    "organization_name": "Triangle Rescue Standby Services LLC",
+    "organization_id": "98373",
+    "organization_address": "3875 I-10 East, Orange, TX 77630 US",
   },
 
-
-  
   "info": {
-       "direct": "Yes",
-       "date_printed": "10/26/2022",
-       "card_number": "98232",
-       "name": "Tony Lin",
+    "direct": "Yes",
+    "date_printed": "10/26/2022",
+    "card_number": "98232",
+    "name": "Tony Lin",
 
-       "entries": {
-            "entry1": {
-                 "date_scored": "10/10/2022",
-                 "certificate_type": "Certificate",
-                 "certificate_name": "Scaffold Builder V3",
-                 "credential_type": "Knowledge Verified",
-                 "wallet_card": "X",
-                 "silver_card": "",
-                 "gold_card": ""
+    "entries": {
+      "entry1": {
+        "date_scored": "10/10/2022",
+        "certificate_type": "Certificate",
+        "certificate_name": "Scaffold Builder V3",
+        "credential_type": "Knowledge Verified",
+        "wallet_card": "X",
+        "silver_card": "",
+        "gold_card": "",
       },
 
       "entry2": {
-       "date_scored": "10/10/2022",
-       "certificate_type": "Wallet Card",
-       "certificate_name": "Scaffold Builder V3",
-       "credential_type": "Knowledge Verified",
-       "blue_card": "X",
-       "silver_card": "",
-       "gold_card": ""
-      }
-    }
-  }
+        "date_scored": "10/10/2022",
+        "certificate_type": "Wallet Card",
+        "certificate_name": "Scaffold Builder V3",
+        "credential_type": "Knowledge Verified",
+        "blue_card": "X",
+        "silver_card": "",
+        "gold_card": "",
+      },
+    },
+  },
 }
-
 
 template = {
   "template": {
-    "title": "2023 Craft Certificate",
-    "category": "certificates",
+    "title": "Assessment Result Batch Report",
+    "category": "Batch Report",
     "page_size": "400 900",
-    "type": "certificate",
-    "color": "FFFFFF"
+    "background_color": "FFF275",
+    "font_size": "20pt",
+    "font_family": "Courier-Bold",
+    "type": "ar_batch_report",
+    "color": "000000",
   },
-
   "defaults": {
-    "font_family": "Times-Roman",
-    "font_size": "12pt"
+    "font_family": "Courier",
+    "font_size": "12pt",
+    "height_spacing": "150",
+    "width": "500",
+    "height": "70",
   },
-
   "sections": {
-    "header1": {
-      "font_size": "20pt",
-      "location": "70 360 400 30",
-      "text": "NCCER Presents",
-      "style": "italic"
+    "report_id": {
+      "font_size": "14pt",
+      "report_id": "Assessment Result Batch Report ID #: ",
+      "line_spacing": "15"
     },
-    "header2": {
-      "font_size": "20pt",
-      "location": "240 360 400 70",
-      "text": "2023 Craft Certificate",
-      "style": "italic"
+    "assessment_center": {
+      "font-size": "14pt",
+      "organization_name": "Assessment Center: ",
+      "organization_id": "Organization ID: ",
+      "organization_address":"{{organization_address}}",
+      "line_spacing": "55"
     },
-    "name": {
-      "font_size": "40pt",
-      "font_style": "italic",
-      "location": "160 280 400 110",
-      "text": "{{name}}",
-      "style": "italic"
-    },
-
-    "presented-header": {
-      "location": "150 150 90 220",
-      "text": "Presented On"
-    },
-    "presented-date": {
-      "location": "140 130 120 250",
-      "text": "{{completion_date}}"
+    "assessment_site": {
+      "font-size": "14pt",
+      "organization_name": "Assessment Site: ",
+      "organization_id": "Organization ID: ",
+      "organization_address":"{{organization_address}}",
+      "line_spacing": "55"
     },
 
-    "signature": {
-      "location": "450 150 125 120",
-      "image": "images/certificates/boyd_signature.png"
+    "info":{
+      "font-size": "14pt",
+      "direct": "Send Direct: ",
+      "date_printed": "Date Printed: ",
+      "card_number": "Result ID: ",
+      "name": "{{name}}",
+      "date_scored": "{{date}}",
+      "certificate_type": "{{type}}",
+      "certificate_name": "{{certificate_name}}",
+      "credential_type": "{{credential_type}}",
+      "wallet_card": "Blue Card",
+      "line_spacing": "55"
     }
   }
 }
 
 
-renderer = Renderer.new(template,attributes)
+# template = {
+#   "template": {
+#     "title": "2023 Craft Certificate",
+#     "category": "certificates",
+#     "page_size": "400 900",
+#     "type": "ar_batch_report",
+#     "color": "FFFFFF",
+#   },
+
+#   "defaults": {
+#     "font_family": "Times-Roman",
+#     "font_size": "12pt",
+#   },
+
+#   "sections": {
+#     "header1": {
+#       "font_size": "20pt",
+#       "location": "70 360 400 30",
+#       "text": "NCCER Presents",
+#       "style": "italic",
+#     },
+#     "header2": {
+#       "font_size": "20pt",
+#       "location": "240 360 400 70",
+#       "text": "2023 Craft Certificate",
+#       "style": "italic",
+#     },
+#     "name": {
+#       "font_size": "40pt",
+#       "font_style": "italic",
+#       "location": "160 280 400 110",
+#       "text": "{{name}}",
+#       "style": "italic",
+#     },
+
+#     "presented-header": {
+#       "location": "150 150 90 220",
+#       "text": "Presented On",
+#     },
+#     "presented-date": {
+#       "location": "140 130 120 250",
+#       "text": "{{completion_date}}",
+#     },
+
+#     "signature": {
+#       "location": "450 150 125 120",
+#       "image": "images/certificates/boyd_signature.png",
+#     },
+#   },
+# }
+
+renderer = Renderer.new(template, attributes)
 
 #puts renderer.template[:template][:title]
-case renderer.template["template".to_sym]["type".to_sym]
+case renderer.template[:template][:type]
 
 when "certificate"
-  COLOR = template["template".to_sym]["color".to_sym]
+  COLOR = template[:template][:color]
   BACKGROUND = template[:template][:background_color]
   renderer.render_certificate
-
 when "ar_batch_report", "pv_batch_report"
-  COLOR = template["template".to_sym]["color".to_sym]
-  BACKGROUND = template["template".to_sym]["background_color".to_sym]
-  #$table = true
-  puts $table
+  COLOR = template[:template][:color]
+  BACKGROUND = template[:template][:background_color]
+  $table = true
   renderer.render_batch_report
-
 else
   puts "Non Existent"
   BACKGROUND = "FFFFFF"
