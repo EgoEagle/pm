@@ -378,7 +378,6 @@ template = {
 
 renderer = Renderer.new(template, attributes)
 
-#puts renderer.template[:template][:title]
 case renderer.template[:template][:type]
 
 when "certificate"
@@ -391,7 +390,7 @@ when "ar_batch_report", "pv_batch_report"
   $table = true
   renderer.render_batch_report
 else
-  puts "Non Existent"
+  puts "No Matching Template"
   BACKGROUND = "FFFFFF"
 end
 
