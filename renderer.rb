@@ -9,10 +9,6 @@ time = Time.new
 $info
 $table = false
 
-#time.strftime("%m/%d/%Y"),
-#json object
-#into Ruby Hash
-
 class Renderer
   attr_accessor :page_fragments, :template, :attributes
 
