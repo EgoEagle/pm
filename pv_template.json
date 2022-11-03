@@ -6,7 +6,8 @@
     "color" : "000000",
     "background_color": "FFF275",
     "font-size": "20pt",
-    "font-family": "Courier-Bold"
+    "font-family": "Courier-Bold",
+    "type": "ar_batch_report"
   },
   "defaults": {
     "font-family": "Courier",
@@ -18,7 +19,7 @@
   "sections": {
     "report_id": {
       "font-size": "14pt",
-      "report_id": "Performance Result Batch Report ID #: ",
+      "report_id": "Assessment Result Batch Report ID #: ",
       "line-spacing": "15"
     },
     "assessment_center": {
